@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#8ECDEF">
+  <title>Bubu & Dudu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Literata:opsz,wght@7..72,480;7..72,650&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #16343c;
+      --sheet: #f4fafb;
+      --persimmon: #ff6b3d;
+      --storm: #2f5d8c;
+      --track: #d5e4ea;
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: Literata, Georgia, serif;
+      font-size: 1.05rem;
+      line-height: 1.45;
+      background: #8ecdef;
+    }
+
+    button, input { font: inherit; color: inherit; }
+
+    button {
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible, input:focus-visible {
+      outline: 3px solid var(--persimmon);
+      outline-offset: 2px;
+    }
+
+    .app {
+      height: 100dvh;
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .world {
+      position: relative;
+      flex: 0 0 auto;
+      height: 44dvh;
+      min-height: 250px;
+      overflow: hidden;
+      background: linear-gradient(#8ecdef, #d7f0b8);
+    }
+
+    body.playing .world {
+      height: 30dvh;
+      min-height: 176px;
+    }
+
+    body.playing .bear svg { width: 86px; height: 102px; }
+
+    .titleblock {
+      position: absolute;
+      z-index: 4;
+      top: calc(14px + env(safe-area-inset-top));
+      left: 18px;
+      right: 18px;
+      pointer-events: none;
+    }
+
+    .titleblock h1 {
+      margin: 0;
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-size: clamp(2.5rem, 11vw, 3.5rem);
+      font-weight: 700;
+      line-height: 0.92;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+    }
+
+    .lead {
+      margin: 2px 0 12px;
+      font-size: 1.08rem;
+    }
+
+    .sun {
+      position: absolute;
+      z-index: 1;
+      top: 58px;
+      right: 20px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #ffe38a;
+    }
+
+    .clouds {
+      position: absolute;
+      z-index: 1;
+      top: 68px;
+      left: 0;
+      width: 200%;
+      height: 84px;
+      animation: drift 48s linear infinite;
+    }
+
+    .clouds i {
+      position: absolute;
+      display: block;
+      background: #fff;
+      border-radius: 40px;
+      opacity: 0.92;
+    }
+
+    .clouds i:nth-child(1),
+    .clouds i:nth-child(4) { width: 86px; height: 30px; top: 8px; }
+    .clouds i:nth-child(1) { left: 4%; }
+    .clouds i:nth-child(4) { left: 54%; }
+    .clouds i:nth-child(2),
+    .clouds i:nth-child(5) { width: 48px; height: 20px; top: 34px; }
+    .clouds i:nth-child(2) { left: 18%; }
+    .clouds i:nth-child(5) { left: 68%; }
+    .clouds i:nth-child(3),
+    .clouds i:nth-child(6) { width: 68px; height: 24px; top: 6px; }
+    .clouds i:nth-child(3) { left: 30%; }
+    .clouds i:nth-child(6) { left: 80%; }
+
+    .hills {
+      position: absolute;
+      z-index: 2;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 48%;
+    }
+
+    .hill.far { fill: #8fce7a; }
+    .hill.near { fill: #67a85e; }
+
+    .cast {
+      position: absolute;
+      z-index: 3;
+      left: 0;
+      right: 0;
+      bottom: 34px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 18px;
+    }
+
+    .bear {
+      appearance: none;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .bear::before {
+      content: "";
+      position: absolute;
+      bottom: 26px;
+      width: 74px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(22, 52, 60, 0.16);
+    }
+
+    .bear svg {
+      position: relative;
+      z-index: 1;
+      width: 112px;
+      height: 132px;
+      display: block;
+      animation: bob 3.4s ease-in-out infinite;
+    }
+
+    .bear.dudu svg { animation-delay: -1.5s; }
+
+    .bear span {
+      position: relative;
+      z-index: 1;
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      line-height: 1.2;
+      background: var(--sheet);
+      padding: 0 6px;
+      border-radius: 4px;
+    }
+
+    .bear.is-mine span {
+      background: var(--ink);
+      color: var(--sheet);
+    }
+
+    .bear.is-turn span { outline: 2px solid var(--persimmon); }
+
+    .bear.is-taken { opacity: 0.55; }
+
+    .bear.hop svg { animation: hop 520ms ease; }
+
+    .sheet {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      min-height: 0;
+      margin-top: -22px;
+      padding: 18px 18px calc(16px + env(safe-area-inset-bottom));
+      overflow: auto;
+      background: var(--sheet);
+      border-top: 3px solid var(--ink);
+      border-radius: 28px 28px 0 0;
+    }
+
+    .hud-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin: 0 0 8px;
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .hud-row p { margin: 0; }
+
+    .meters { display: grid; gap: 6px; }
+
+    .meter {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meter span { font-size: 0.98rem; }
+
+    .track {
+      height: 10px;
+      background: var(--track);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .track div { height: 100%; width: 0; }
+    #loveFill { background: var(--persimmon); }
+    #chaosFill { background: var(--storm); }
+
+    .notice {
+      margin: 10px 0 0;
+      color: #8d341c;
+    }
+
+    h2 {
+      margin: 14px 0 6px;
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .count { margin: 0 0 8px; color: #24515c; }
+
+    .story { margin: 0 0 12px; font-size: 1.12rem; line-height: 1.5; }
+
+    .recap { margin: 0 0 12px; color: #24515c; white-space: pre-line; }
+
+    .wait { margin: 0 0 10px; }
+
+    .choices { display: grid; gap: 8px; }
+
+    .choice, .go {
+      min-height: 52px;
+      border-radius: 12px;
+      border: 2px solid var(--ink);
+    }
+
+    .choice {
+      padding: 10px 12px;
+      text-align: left;
+      background: #fff;
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .choice:active { transform: translateY(1px); }
+
+    .choice.is-selected, .choice:disabled.is-selected {
+      background: var(--ink);
+      color: var(--sheet);
+    }
+
+    .go {
+      width: 100%;
+      margin-top: 8px;
+      background: var(--ink);
+      color: var(--sheet);
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .go.alt { background: var(--sheet); color: var(--ink); }
+
+    .go:disabled, .choice:disabled { opacity: 0.45; cursor: default; }
+
+    .choice:disabled.is-selected { opacity: 1; }
+
+    .join-row { display: flex; gap: 8px; margin-top: 8px; }
+
+    .join-row input {
+      flex: 1;
+      min-width: 0;
+      min-height: 52px;
+      padding: 0 12px;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 16px;
+    }
+
+    .join-row .go { width: auto; min-width: 96px; margin-top: 0; }
+
+    label { display: block; margin-top: 14px; }
+
+    .code {
+      margin: 4px 0 0;
+      text-align: center;
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-size: clamp(2.3rem, 14vw, 3rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      user-select: text;
+    }
+
+    .texty {
+      display: block;
+      margin: 14px auto 0;
+      padding: 8px;
+      border: 0;
+      background: none;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-family: Literata, Georgia, serif;
+    }
+
+    .error { margin: 12px 0 0; color: #8d341c; }
+
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+
+    body[data-mood="morning"] { background: #8ecdef; }
+    body[data-mood="kitchen"] { background: #f2c48a; }
+    body[data-mood="park"] { background: #79c7ea; }
+    body[data-mood="crisis"] { background: #9aabb8; }
+    body[data-mood="dusk"] { background: #f2b56b; }
+    body[data-mood="night"] { background: #24556c; }
+
+    .world[data-mood="morning"] { background: linear-gradient(#8ecdef, #d7f0b8); }
+    .world[data-mood="kitchen"] { background: linear-gradient(#f2c48a, #ffe7c2); }
+    .world[data-mood="park"] { background: linear-gradient(#79c7ea, #b7e3a1); }
+    .world[data-mood="crisis"] { background: linear-gradient(#9aabb8, #d5dee6); }
+    .world[data-mood="dusk"] { background: linear-gradient(#f2b56b, #1e4c68); }
+    .world[data-mood="night"] { background: linear-gradient(#24556c, #102833); }
+
+    .world[data-mood="kitchen"] .hill.far { fill: #e7b07a; }
+    .world[data-mood="kitchen"] .hill.near { fill: #c98455; }
+    .world[data-mood="kitchen"] .sun { background: #fff4d2; }
+    .world[data-mood="park"] .hill.far { fill: #67b86a; }
+    .world[data-mood="park"] .hill.near { fill: #3f8a52; }
+    .world[data-mood="crisis"] .hill.far { fill: #b7c3cc; }
+    .world[data-mood="crisis"] .hill.near { fill: #8ea0ad; }
+    .world[data-mood="crisis"] .sun { background: #e7eef2; }
+    .world[data-mood="dusk"] .hill.far { fill: #c98455; }
+    .world[data-mood="dusk"] .hill.near { fill: #17384c; }
+    .world[data-mood="dusk"] .sun { top: auto; bottom: 78px; background: #ffd0a1; }
+    .world[data-mood="night"] .hill.far { fill: #1b4458; }
+    .world[data-mood="night"] .hill.near { fill: #0f2c3a; }
+    .world[data-mood="night"] .sun { background: #f4f7fb; width: 36px; height: 36px; }
+    .world[data-mood="night"] .clouds { opacity: 0.35; }
+
+    @keyframes drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes hop {
+      0% { transform: translateY(0); }
+      40% { transform: translateY(-12px); }
+      100% { transform: translateY(0); }
+    }
+
+    @media (max-height: 700px) {
+      .world { min-height: 210px; }
+      .bear svg { width: 96px; height: 114px; }
+      .titleblock h1 { font-size: 2.2rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .clouds, .bear svg { animation: none; }
+      .track div { transition: none; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .track div { transition: width 480ms ease; }
+    }
+  </style>
+</head>
+<body data-mood="morning">
+  <div class="app">
+    <div class="world" id="world" data-mood="morning">
+      <div class="sun" aria-hidden="true"></div>
+      <div class="clouds" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="titleblock" id="titleblock">
+        <h1>Bubu & Dudu</h1>
+      </div>
+      <svg class="hills" viewBox="0 0 400 140" preserveAspectRatio="none" aria-hidden="true">
+        <path class="hill far" d="M0 78 C70 36 150 58 210 70 C280 86 330 40 400 62 L400 140 L0 140 Z"></path>
+        <path class="hill near" d="M0 104 C70 78 130 96 210 102 C290 110 340 84 400 98 L400 140 L0 140 Z"></path>
+      </svg>
+      <div class="cast">
+        <button type="button" class="bear bubu" id="bearBubu">
+          <svg viewBox="0 0 120 150" aria-hidden="true">
+            <circle cx="34" cy="32" r="16" fill="#16343c"></circle>
+            <circle cx="86" cy="32" r="16" fill="#16343c"></circle>
+            <circle cx="60" cy="58" r="36" fill="#fff"></circle>
+            <ellipse cx="46" cy="56" rx="13" ry="15" fill="#16343c"></ellipse>
+            <ellipse cx="74" cy="56" rx="13" ry="15" fill="#16343c"></ellipse>
+            <circle cx="48" cy="54" r="4" fill="#fff"></circle>
+            <circle cx="76" cy="54" r="4" fill="#fff"></circle>
+            <ellipse cx="34" cy="70" rx="7" ry="4" fill="#ffb5a3"></ellipse>
+            <ellipse cx="86" cy="70" rx="7" ry="4" fill="#ffb5a3"></ellipse>
+            <ellipse cx="60" cy="70" rx="6" ry="4.5" fill="#16343c"></ellipse>
+            <path d="M50 80 Q60 90 70 80" fill="none" stroke="#16343c" stroke-width="2.5" stroke-linecap="round"></path>
+            <ellipse cx="28" cy="112" rx="12" ry="8" fill="#fff" transform="rotate(-24 28 112)"></ellipse>
+            <ellipse cx="92" cy="112" rx="12" ry="8" fill="#fff" transform="rotate(24 92 112)"></ellipse>
+            <ellipse cx="60" cy="118" rx="32" ry="26" fill="#fff"></ellipse>
+          </svg>
+          <span>Bubu</span>
+        </button>
+        <button type="button" class="bear dudu" id="bearDudu">
+          <svg viewBox="0 0 120 150" aria-hidden="true">
+            <circle cx="34" cy="32" r="16" fill="#c4843a"></circle>
+            <circle cx="86" cy="32" r="16" fill="#c4843a"></circle>
+            <circle cx="34" cy="32" r="8" fill="#f6e2c4"></circle>
+            <circle cx="86" cy="32" r="8" fill="#f6e2c4"></circle>
+            <circle cx="60" cy="58" r="36" fill="#d3924a"></circle>
+            <ellipse cx="60" cy="70" rx="18" ry="14" fill="#f3d7b0"></ellipse>
+            <ellipse cx="60" cy="68" rx="6" ry="4.5" fill="#16343c"></ellipse>
+            <path d="M42 56 Q48 52 54 56" fill="none" stroke="#16343c" stroke-width="3" stroke-linecap="round"></path>
+            <path d="M66 56 Q72 52 78 56" fill="none" stroke="#16343c" stroke-width="3" stroke-linecap="round"></path>
+            <ellipse cx="38" cy="72" rx="6" ry="3.5" fill="#e7a684"></ellipse>
+            <ellipse cx="82" cy="72" rx="6" ry="3.5" fill="#e7a684"></ellipse>
+            <path d="M52 80 Q60 86 68 80" fill="none" stroke="#16343c" stroke-width="2.5" stroke-linecap="round"></path>
+            <ellipse cx="28" cy="112" rx="12" ry="8" fill="#d3924a" transform="rotate(-24 28 112)"></ellipse>
+            <ellipse cx="92" cy="112" rx="12" ry="8" fill="#d3924a" transform="rotate(24 92 112)"></ellipse>
+            <ellipse cx="60" cy="118" rx="32" ry="26" fill="#c4843a"></ellipse>
+            <ellipse cx="60" cy="122" rx="16" ry="12" fill="#f3d7b0"></ellipse>
+          </svg>
+          <span>Dudu</span>
+        </button>
+      </div>
+    </div>
+
+    <main class="sheet" id="sheet">
+      <div id="hud" hidden>
+        <div class="hud-row">
+          <p id="hudWho"></p>
+          <p id="hudRoom"></p>
+        </div>
+        <div class="meters">
+          <div class="meter">
+            <span>Sevgi</span>
+            <div class="track" id="loveMeter" role="meter" aria-label="Sevgi" aria-valuemin="0" aria-valuemax="100">
+              <div id="loveFill"></div>
+            </div>
+          </div>
+          <div class="meter">
+            <span>Kaos</span>
+            <div class="track" id="chaosMeter" role="meter" aria-label="Kaos" aria-valuemin="0" aria-valuemax="100">
+              <div id="chaosFill"></div>
+            </div>
+          </div>
+        </div>
+        <p id="notice" class="notice" hidden></p>
+      </div>
+
+      <section id="panelLobby">
+        <p class="lead">Aynı cumartesiyi iki telefondan oynayın.</p>
+        <button type="button" class="go" id="hostBtn">Oda aç</button>
+        <form id="joinForm">
+          <label for="codeInput">Oda kodu</label>
+          <div class="join-row">
+            <input id="codeInput" inputmode="numeric" maxlength="6" autocomplete="off" spellcheck="false" placeholder="6 hane">
+            <button type="submit" class="go alt" id="joinBtn">Katıl</button>
+          </div>
+        </form>
+        <p id="lobbyError" class="error" hidden></p>
+      </section>
+
+      <section id="panelHost" hidden>
+        <h2>Oda hazır</h2>
+        <p>Bu kodu diğer telefona yaz.</p>
+        <p class="code" id="roomCode"></p>
+        <button type="button" class="texty" id="copyBtn">Kodu kopyala</button>
+        <p class="wait">Partner bekleniyor.</p>
+      </section>
+
+      <section id="panelJoin" hidden>
+        <h2>Bağlanıyor</h2>
+        <p id="joinStatus">Odaya bağlanılıyor.</p>
+      </section>
+
+      <section id="panelRole" hidden>
+        <h2>Rolünü seç</h2>
+        <p>İkiniz farklı bir ayı olun.</p>
+        <p id="roleStatus" class="wait"></p>
+        <button type="button" class="go" id="readyBtn">Hazırım</button>
+      </section>
+
+      <section id="panelPlay" hidden>
+        <h2 id="sceneTitle"></h2>
+        <p id="sceneCount" class="count"></p>
+        <p id="storyText" class="story"></p>
+        <p id="recap" class="recap" hidden></p>
+        <p id="waitText" class="wait" hidden></p>
+        <div id="choices" class="choices"></div>
+        <button type="button" class="go" id="continueBtn" hidden>Devam</button>
+      </section>
+
+      <section id="panelEnd" hidden>
+        <h2 id="endTitle"></h2>
+        <p id="endText" class="story"></p>
+        <button type="button" class="go" id="restartBtn">Günü yeniden oyna</button>
+      </section>
+
+      <section id="panelDown" hidden>
+        <h2>Bağlantı koptu</h2>
+        <p id="downText">Yeni bir oda açıp kodu tekrar paylaşın.</p>
+        <button type="button" class="go" id="downBtn">Yeni oda</button>
+      </section>
+
+      <button type="button" class="texty" id="leaveBtn" hidden>Odadan çık</button>
+      <noscript><p>Bu oyun için JavaScript gerekir.</p></noscript>
+    </main>
+  </div>
+  <div id="live" class="sr" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
+  <script id="game">
+    (function () {
+      const START_LOVE = 46;
+      const START_CHAOS = 12;
+
+      function R(text, love, chaos) {
+        return { text: text, love: love, chaos: chaos };
+      }
+
+      const SCENES = [
+        {
+          id: "morning",
+          title: "Cumartesi sabahı",
+          mood: "morning",
+          narration: "Perdeler aralık. Bubu çoktan uyanmış, Dudu yorganın içinde kaybolmuş.",
+          bubu: [
+            { id: "disari", label: "Hadi dışarı çıkalım" },
+            { id: "kahvalti", label: "Önce kahvaltı" },
+            { id: "gidik", label: "Gıdıklayacağım" }
+          ],
+          dudu: [
+            { id: "uyu", label: "Beş dakika daha" },
+            { id: "film", label: "Evde film açalım" },
+            { id: "cik", label: "Tamam, çıkalım" }
+          ],
+          resolve: {
+            "disari|uyu": R("Bubu kapıda bekliyor. Dudu yorganın içinden beş dakika daha diyor. Pazarlık gülerek uzuyor.", 4, 16),
+            "disari|film": R("Bubu montunu giymiş, Dudu kumandayı uzatıyor. Kapı ile kanepe arasında kalıyorlar.", 8, 8),
+            "disari|cik": R("İkisi de kapıda. Güneş tam isabet, ayakkabılar ilk seferde bulunuyor.", 15, 0),
+            "kahvalti|uyu": R("Bubu mutfakta şarkı söylüyor. Dudu beş dakika diyor, koku onu daha erken kaldırıyor.", 11, 3),
+            "kahvalti|film": R("Kahvaltı tepsisi yatağa geliyor. Film açılıyor, ilk lokma sıcak.", 13, 2),
+            "kahvalti|cik": R("Dudu çıkmaya hazır, Bubu önce midemiz diyor. Parka tok çıkacaklar.", 12, 2),
+            "gidik|uyu": R("Yorgan savaşı başlıyor. Dudu gülüyor, sonra yastığı fırlatıyor.", 9, 10),
+            "gidik|film": R("Gıdıklama fragman oluyor. Filmin ilk sahnesi yarım kalıyor, ikisi de nefes nefese.", 6, 7),
+            "gidik|cik": R("Dudu tam çıkacakken gıdıklanıyor, anahtar yere düşüyor. İkisi de gülüyor.", 12, 5)
+          }
+        },
+        {
+          id: "breakfast",
+          title: "Kahvaltı",
+          mood: "kitchen",
+          narration: "Mutfak hâlâ sıcak. Bugünün ilk ortak kararı tabakta.",
+          bubu: [
+            { id: "pankek", label: "Pankek ve çilek" },
+            { id: "birlikte", label: "Birlikte yapalım" },
+            { id: "surpriz", label: "Sana sürpriz" }
+          ],
+          dudu: [
+            { id: "tost", label: "Çay ve tost yeter" },
+            { id: "yardim", label: "Ben de yardım ederim" },
+            { id: "tatli", label: "Tatlı da olsun" }
+          ],
+          resolve: {
+            "pankek|tost": R("Tabakta pankek, köşede tost. Ortadan kesip paylaşıyorlar.", 9, 6),
+            "pankek|yardim": R("Dudu çırparken un uçuyor. Bubu'nun yanağında beyaz bir leke kalıyor.", 12, 5),
+            "pankek|tatli": R("Çilek, bal ve iki çatal. Tabak bitince ikisi de susmuyor, gülümsüyor.", 15, 1),
+            "birlikte|tost": R("Birlikte sade tost. Sessiz, sıcak, tam Dudu'nun temposu.", 13, 1),
+            "birlikte|yardim": R("Dört el, bir mutfak. Biri yağ sürüyor, biri çayı demliyor.", 16, 1),
+            "birlikte|tatli": R("Birlikte yaptıkları pankekin üstüne reçel iniyor. Kaşık kavgası tatlı bitiyor.", 15, 2),
+            "surpriz|tost": R("Bubu gözleri kapat diyor. Dudu tost beklerken pankekle karşılaşıyor.", 4, 15),
+            "surpriz|yardim": R("Sürpriz, Dudu mutfağa girince bozuluyor. Kalanını birlikte bitiriyorlar.", 5, 8),
+            "surpriz|tatli": R("Sürpriz tam isabet. Tatlı tabak, Dudu'nun beklediği şeymiş.", 16, 1)
+          }
+        },
+        {
+          id: "afternoon",
+          title: "Öğleden sonra",
+          mood: "park",
+          narration: "Öğlen oldu. Dışarıda güneş var, içeride kanepe de ısrar ediyor.",
+          bubu: [
+            { id: "park", label: "Parka gidelim" },
+            { id: "alisveris", label: "Alışverişe çıkalım" },
+            { id: "ev", label: "Evde kalalım" }
+          ],
+          dudu: [
+            { id: "park", label: "Park iyi fikir" },
+            { id: "ev", label: "Ev daha sakin" },
+            { id: "tur", label: "Kısa bir tur olur" }
+          ],
+          resolve: {
+            "park|park": R("Aynı bank, iki dondurma. Konuşmadan da iyi geliyor.", 16, 0),
+            "park|ev": R("Bubu ayakkabıyı giymiş, Dudu terlikte. Kapıda yarım saatlik park pazarlığı.", 8, 9),
+            "park|tur": R("Parka kadar yürüyüp aynı yoldan dönüyorlar. Kısa ve tam kararında.", 12, 2),
+            "alisveris|park": R("Bubu vitrini, Dudu ağacı gösteriyor. Önce park, dönüşte tek bir dükkân.", 9, 7),
+            "alisveris|ev": R("Poşet hayali battaniyeye yeniliyor. Bubu siparişi erteleyip kanepeye düşüyor.", 3, 16),
+            "alisveris|tur": R("Kısa tur bir vitrinde uzuyor. Dudu yorulunca ilk bank onların oluyor.", 11, 4),
+            "ev|park": R("Dudu dışarı hazır, Bubu oyunu açmış. Pencere açık, ikisi de yarı dışarıda.", 8, 8),
+            "ev|ev": R("İkisi de evde. Çay, kutu oyun, kimse saate bakmıyor.", 15, 1),
+            "ev|tur": R("Dudu kısa tur diyor, Bubu on beş dakika diye pazarlık ediyor. Tur on beş dakikayı aşıyor.", 4, 8)
+          }
+        },
+        {
+          id: "crisis",
+          title: "Küçük bir kırılma",
+          mood: "crisis",
+          narration: "Bubu, Dudu'nun eski bir fotoğrafına takılıyor. Şaka büyük, Dudu'nun susması daha büyük.",
+          bubu: [
+            { id: "saka", label: "Şaka yapıyordum" },
+            { id: "ozur", label: "Özür dilerim" },
+            { id: "saril", label: "Gel sarılalım" }
+          ],
+          dudu: [
+            { id: "kirildim", label: "Biraz kırıldım" },
+            { id: "komik", label: "Aslında komikti" },
+            { id: "konus", label: "Konuşalım" }
+          ],
+          resolve: {
+            "saka|kirildim": R("Şakanın üstüne bir şaka daha geliyor. Oda bir anda serinliyor.", 2, 18),
+            "saka|komik": R("Dudu gecikmeli gülüyor. Bir daha sormadan olmaz, diyor.", 10, 7),
+            "saka|konus": R("Oturup konuşuyorlar. Şaka açıklığa kavuşunca omuzlar iniyor.", 12, 4),
+            "ozur|kirildim": R("Özür duyuluyor ama Dudu biraz süre istiyor. Yan yana, sessiz.", 9, 6),
+            "ozur|komik": R("Dudu özür gerekmez diyor. Bubu yine de sarılıyor.", 14, 2),
+            "ozur|konus": R("Sakin bir konuşma. İkisi de neye takıldığını adıyla söylüyor.", 16, -4),
+            "saril|kirildim": R("Sarılma biraz erken. Dudu önce kasılıyor, sonra yavaşça yumuşuyor.", 4, 9),
+            "saril|komik": R("Sarılma kahkahayla açılıyor. Fotoğraf yeniden komik hale geliyor.", 14, 3),
+            "saril|konus": R("Önce kısa bir sarılma, sonra iki cümlelik dürüst bir konuşma.", 15, 2)
+          }
+        },
+        {
+          id: "evening",
+          title: "Akşam",
+          mood: "dusk",
+          narration: "Gün yavaşlıyor. Işık turuncuya çekiliyor. Bu akşamı nasıl kapattığınız kalıyor.",
+          bubu: [
+            { id: "film", label: "Film gecesi" },
+            { id: "yuruyus", label: "Yürüyüşe çıkalım" },
+            { id: "battaniye", label: "Battaniye ve sarılma" }
+          ],
+          dudu: [
+            { id: "film", label: "Film iyi fikir" },
+            { id: "yuruyus", label: "Yürüyüş olur" },
+            { id: "cay", label: "Çay demleyeyim" }
+          ],
+          resolve: {
+            "film|film": R("Aynı film, tek battaniye. Jenerik bitmeden biri uyukluyor.", 16, 0),
+            "film|yuruyus": R("Bubu kanepeyi, Dudu kapıyı gösteriyor. Film sözü yürüyüşten sonraya kalıyor.", 4, 14),
+            "film|cay": R("Film başlıyor, çay yanına yetişiyor. Buhar ekrana karışıyor.", 15, 1),
+            "yuruyus|film": R("Dudu film istiyor, Bubu sokağı. Mahallede bir tur, sonra aynı kanepe.", 4, 8),
+            "yuruyus|yuruyus": R("Lamba altında yürüyorlar. Konuşma seyrek, adımlar denk.", 16, 1),
+            "yuruyus|cay": R("Dudu çayı termosa koyuyor. Yürüyüş, sıcak bardakla tamamlanıyor.", 14, 2),
+            "battaniye|film": R("Battaniye kale oluyor, film sesi dışarıdan geliyor. İkisi de içeride.", 15, 1),
+            "battaniye|yuruyus": R("Bubu kaleden çıkmak istemiyor. Dudu pencereyi açınca gece içeri giriyor.", 6, 10),
+            "battaniye|cay": R("Çay, battaniye, omuz omuza. Gün başka bir plana ihtiyaç duymuyor.", 16, 0)
+          }
+        }
+      ];
+
+      const ENDINGS = {
+        uyumlu: {
+          title: "Aynı ritim",
+          mood: "morning",
+          text: "Sevgi dolu, ev sakin. Bubu hâlâ anlatıyor, Dudu dinliyor ve bu sefer ikisi de gülüyor. Cumartesi tam böyle bitsin diye kurulmuş gibi."
+        },
+        kaos: {
+          title: "Güzel bir karışıklık",
+          mood: "night",
+          text: "Planlar üst üste bindi, bir şaka fazla kaçtı, yine de kimse kapıyı çarpmadı. Bu evde karışıklık da bir tür sarılma. Yarın daha sakin olabilir."
+        },
+        orta: {
+          title: "Tam ikinize göre",
+          mood: "dusk",
+          text: "Ne her şey tıkır tıkır gitti ne de dağıldı. Biraz pazarlık, biraz çay, biraz gülme. Gün, ikinizin temposunun ortasında kapandı."
+        }
+      };
+
+      function clamp(n) {
+        return Math.max(0, Math.min(100, Math.round(n)));
+      }
+
+      function pickEnding(love, chaos) {
+        if (chaos >= 55 && chaos >= love - 15) return "kaos";
+        if (love >= 78 && love >= chaos + 25) return "uyumlu";
+        return "orta";
+      }
+
+      function initialState() {
+        return {
+          phase: "lobby",
+          code: "",
+          seat: null,
+          isHost: false,
+          partner: false,
+          roles: { bubu: null, dudu: null },
+          ready: { host: false, guest: false },
+          sceneIndex: 0,
+          love: START_LOVE,
+          chaos: START_CHAOS,
+          picks: { bubu: null, dudu: null },
+          continues: { host: false, guest: false },
+          outcomeText: "",
+          endingId: null,
+          notice: "",
+          error: "",
+          seq: 0
+        };
+      }
+
+      function roleOf(state, seat) {
+        if (seat !== "host" && seat !== "guest") return null;
+        if (state.roles.bubu === seat) return "bubu";
+        if (state.roles.dudu === seat) return "dudu";
+        return null;
+      }
+
+      function optionLabel(scene, role, id) {
+        const list = scene[role] || [];
+        for (let i = 0; i < list.length; i += 1) {
+          if (list[i].id === id) return list[i].label;
+        }
+        return "";
+      }
+
+      function hostReduce(state, action) {
+        const next = JSON.parse(JSON.stringify(state));
+        next.notice = "";
+        if (action.type === "hosted") {
+          next.phase = "hosting";
+          next.code = action.code;
+          next.isHost = true;
+          next.seat = "host";
+          next.partner = false;
+          next.error = "";
+          return next;
+        }
+        if (action.type === "partner") {
+          next.partner = true;
+          if (next.phase === "hosting") next.phase = "role";
+          return next;
+        }
+        if (action.type === "role") {
+          if (next.phase !== "role") return next;
+          const seat = action.seat;
+          const role = action.role;
+          if (role !== "bubu" && role !== "dudu") return next;
+          if (next.roles.bubu === seat) next.roles.bubu = null;
+          if (next.roles.dudu === seat) next.roles.dudu = null;
+          if (next.roles[role] && next.roles[role] !== seat) {
+            next.notice = "Bu rol dolu. Diğerini seç.";
+            next.ready[seat] = false;
+          } else {
+            next.roles[role] = seat;
+            next.ready[seat] = false;
+          }
+          return next;
+        }
+        if (action.type === "ready") {
+          if (next.phase !== "role") return next;
+          const seat = action.seat;
+          if (!roleOf(next, seat)) {
+            next.notice = "Önce bir rol seç.";
+            return next;
+          }
+          next.ready[seat] = true;
+          if (next.ready.host && next.ready.guest && next.roles.bubu && next.roles.dudu) {
+            next.phase = "scene";
+            next.sceneIndex = 0;
+            next.picks = { bubu: null, dudu: null };
+            next.continues = { host: false, guest: false };
+            next.outcomeText = "";
+            next.endingId = null;
+          }
+          return next;
+        }
+        if (action.type === "choice") {
+          if (next.phase !== "scene") return next;
+          const role = roleOf(next, action.seat);
+          if (!role) return next;
+          const scene = SCENES[next.sceneIndex];
+          const options = scene[role];
+          let ok = false;
+          for (let i = 0; i < options.length; i += 1) {
+            if (options[i].id === action.id) ok = true;
+          }
+          if (!ok || next.picks[role]) return next;
+          next.picks[role] = action.id;
+          if (next.picks.bubu && next.picks.dudu) {
+            const result = scene.resolve[next.picks.bubu + "|" + next.picks.dudu];
+            if (!result) return next;
+            next.love = clamp(next.love + result.love);
+            next.chaos = clamp(next.chaos + result.chaos);
+            next.outcomeText = result.text;
+            next.phase = "outcome";
+            next.continues = { host: false, guest: false };
+          }
+          return next;
+        }
+        if (action.type === "continue") {
+          if (next.phase !== "outcome") return next;
+          next.continues[action.seat] = true;
+          if (next.continues.host && next.continues.guest) {
+            if (next.sceneIndex >= SCENES.length - 1) {
+              next.phase = "ending";
+              next.endingId = pickEnding(next.love, next.chaos);
+            } else {
+              next.sceneIndex += 1;
+              next.phase = "scene";
+              next.picks = { bubu: null, dudu: null };
+              next.continues = { host: false, guest: false };
+              next.outcomeText = "";
+            }
+          }
+          return next;
+        }
+        if (action.type === "restart") {
+          if (next.phase !== "ending") return next;
+          const fresh = initialState();
+          fresh.phase = "role";
+          fresh.code = next.code;
+          fresh.partner = next.partner;
+          fresh.isHost = next.isHost;
+          fresh.seat = next.seat;
+          fresh.seq = next.seq;
+          fresh.notice = "Yeni gün. Rolleri yeniden seçin.";
+          return fresh;
+        }
+        if (action.type === "disconnect") {
+          next.phase = "disconnected";
+          next.partner = false;
+          next.error = action.message || "Yeni bir oda açıp kodu tekrar paylaşın.";
+          return next;
+        }
+        return next;
+      }
+
+      globalThis.BD = {
+        SCENES: SCENES,
+        ENDINGS: ENDINGS,
+        START_LOVE: START_LOVE,
+        START_CHAOS: START_CHAOS,
+        initialState: initialState,
+        hostReduce: hostReduce,
+        pickEnding: pickEnding,
+        clamp: clamp,
+        roleOf: roleOf,
+        optionLabel: optionLabel
+      };
+
+      if (typeof document === "undefined") return;
+
+      const THEME = {
+        morning: "#8ECDEF",
+        kitchen: "#F2C48A",
+        park: "#79C7EA",
+        crisis: "#9AABB8",
+        dusk: "#F2B56B",
+        night: "#24556C"
+      };
+
+      const els = {
+        world: document.getElementById("world"),
+        titleblock: document.getElementById("titleblock"),
+        bearBubu: document.getElementById("bearBubu"),
+        bearDudu: document.getElementById("bearDudu"),
+        hud: document.getElementById("hud"),
+        hudWho: document.getElementById("hudWho"),
+        hudRoom: document.getElementById("hudRoom"),
+        loveFill: document.getElementById("loveFill"),
+        chaosFill: document.getElementById("chaosFill"),
+        loveMeter: document.getElementById("loveMeter"),
+        chaosMeter: document.getElementById("chaosMeter"),
+        notice: document.getElementById("notice"),
+        panelLobby: document.getElementById("panelLobby"),
+        panelHost: document.getElementById("panelHost"),
+        panelJoin: document.getElementById("panelJoin"),
+        panelRole: document.getElementById("panelRole"),
+        panelPlay: document.getElementById("panelPlay"),
+        panelEnd: document.getElementById("panelEnd"),
+        panelDown: document.getElementById("panelDown"),
+        hostBtn: document.getElementById("hostBtn"),
+        joinForm: document.getElementById("joinForm"),
+        joinBtn: document.getElementById("joinBtn"),
+        codeInput: document.getElementById("codeInput"),
+        lobbyError: document.getElementById("lobbyError"),
+        roomCode: document.getElementById("roomCode"),
+        copyBtn: document.getElementById("copyBtn"),
+        roleStatus: document.getElementById("roleStatus"),
+        readyBtn: document.getElementById("readyBtn"),
+        sceneTitle: document.getElementById("sceneTitle"),
+        sceneCount: document.getElementById("sceneCount"),
+        storyText: document.getElementById("storyText"),
+        recap: document.getElementById("recap"),
+        waitText: document.getElementById("waitText"),
+        choices: document.getElementById("choices"),
+        continueBtn: document.getElementById("continueBtn"),
+        endTitle: document.getElementById("endTitle"),
+        endText: document.getElementById("endText"),
+        restartBtn: document.getElementById("restartBtn"),
+        downText: document.getElementById("downText"),
+        downBtn: document.getElementById("downBtn"),
+        leaveBtn: document.getElementById("leaveBtn"),
+        live: document.getElementById("live"),
+        theme: document.querySelector('meta[name="theme-color"]')
+      };
+
+      let state = initialState();
+      let peer = null;
+      let conn = null;
+      let connReady = false;
+      let generation = 0;
+      let suppressClose = false;
+      let netTimer = 0;
+      let localChoice = null;
+      let localCont = false;
+      let localReady = false;
+      let lastPhase = "";
+      let hopTimer = 0;
+
+      function peerCtor() {
+        if (typeof Peer === "function") return Peer;
+        if (globalThis.peerjs && typeof globalThis.peerjs.Peer === "function") return globalThis.peerjs.Peer;
+        return null;
+      }
+
+      function randomCode() {
+        return String(Math.floor(100000 + Math.random() * 900000));
+      }
+
+      function destroyNet() {
+        generation += 1;
+        suppressClose = true;
+        window.clearTimeout(netTimer);
+        const oldConn = conn;
+        const oldPeer = peer;
+        conn = null;
+        connReady = false;
+        peer = null;
+        try { if (oldConn) oldConn.close(); } catch (err) { /* already closed */ }
+        try { if (oldPeer) oldPeer.destroy(); } catch (err) { /* already gone */ }
+        suppressClose = false;
+      }
+
+      function snapshot(s) {
+        return {
+          t: "state",
+          seq: s.seq,
+          phase: s.phase,
+          code: s.code,
+          roles: { bubu: s.roles.bubu, dudu: s.roles.dudu },
+          ready: { host: !!s.ready.host, guest: !!s.ready.guest },
+          sceneIndex: s.sceneIndex,
+          love: s.love,
+          chaos: s.chaos,
+          picks: { bubu: s.picks.bubu, dudu: s.picks.dudu },
+          continues: { host: !!s.continues.host, guest: !!s.continues.guest },
+          outcomeText: s.outcomeText,
+          endingId: s.endingId,
+          notice: s.notice
+        };
+      }
+
+      function sendSnapshot() {
+        if (state.isHost && conn && connReady) conn.send(snapshot(state));
+      }
+
+      function publish() {
+        if (!state.isHost) {
+          render();
+          return;
+        }
+        state.seq += 1;
+        render();
+        sendSnapshot();
+      }
+
+      function inSession() {
+        return state.partner || state.phase === "role" || state.phase === "scene" || state.phase === "outcome" || state.phase === "ending";
+      }
+
+      function failSoft(message) {
+        const code = state.code;
+        destroyNet();
+        state = initialState();
+        state.code = code;
+        state.error = message;
+        localChoice = null;
+        localCont = false;
+        localReady = false;
+        render();
+        if (code) els.codeInput.value = code;
+      }
+
+      function failHard() {
+        destroyNet();
+        state = hostReduce(state, { type: "disconnect" });
+        localChoice = null;
+        localCont = false;
+        localReady = false;
+        render();
+      }
+
+      function handleDrop() {
+        if (inSession()) failHard();
+        else failSoft("Bağlantı kurulamadı. Yeniden dene.");
+      }
+
+      function onPeerError(err, gen, retryHost) {
+        if (gen !== generation) return;
+        const type = err && err.type;
+        if (type === "unavailable-id" && retryHost) return;
+        if (type === "peer-unavailable") {
+          failSoft("Bu kodla açık bir oda yok. Arkadaşının oda ekranında beklediğinden emin ol.");
+          return;
+        }
+        if (type === "browser-incompatible") {
+          failSoft("Bu tarayıcı iki kişilik bağlantıyı açamıyor. Chrome veya Safari dene.");
+          return;
+        }
+        if (type === "invalid-id") {
+          failSoft("Oda kodu geçersiz.");
+          return;
+        }
+        if (type === "network" || type === "server-error" || type === "socket-closed" || type === "socket-error" || type === "disconnected" || type === "webrtc") {
+          if (inSession()) failHard();
+          else failSoft("Sinyal sunucusuna ulaşılamadı. İnterneti kontrol edip yeniden dene.");
+          return;
+        }
+        if (inSession()) failHard();
+        else failSoft("Bağlantı kurulamadı. Yeniden dene.");
+      }
+
+      function bindConn(c, gen) {
+        conn = c;
+        c.on("data", function (msg) {
+          if (gen !== generation) return;
+          connReady = true;
+          if (state.isHost) onGuestMessage(msg);
+          else onSnapshot(msg);
+        });
+        c.on("open", function () {
+          if (gen !== generation) return;
+          connReady = true;
+          if (state.isHost) sendSnapshot();
+          else c.send({ t: "hello" });
+        });
+        c.on("close", function () {
+          if (gen !== generation || suppressClose) return;
+          if (conn !== c) return;
+          handleDrop();
+        });
+        c.on("error", function () {
+          if (gen !== generation || suppressClose) return;
+          if (conn !== c) return;
+          handleDrop();
+        });
+      }
+
+      function onGuestMessage(msg) {
+        if (!msg || typeof msg !== "object") return;
+        if (msg.t === "hello") {
+          state = hostReduce(state, { type: "partner" });
+          publish();
+          return;
+        }
+        if (!state.partner) return;
+        if (msg.t === "role" && (msg.role === "bubu" || msg.role === "dudu")) {
+          state = hostReduce(state, { type: "role", seat: "guest", role: msg.role });
+        } else if (msg.t === "ready") {
+          state = hostReduce(state, { type: "ready", seat: "guest" });
+        } else if (msg.t === "choice" && typeof msg.id === "string") {
+          state = hostReduce(state, { type: "choice", seat: "guest", id: msg.id });
+        } else if (msg.t === "continue") {
+          state = hostReduce(state, { type: "continue", seat: "guest" });
+        } else if (msg.t === "restart") {
+          state = hostReduce(state, { type: "restart" });
+        } else return;
+        publish();
+      }
+
+      function onSnapshot(msg) {
+        if (!msg || msg.t !== "state" || typeof msg.seq !== "number") return;
+        if (!msg.roles || !msg.ready || !msg.picks || !msg.continues) return;
+        if (msg.seq < state.seq) return;
+        window.clearTimeout(netTimer);
+        state.phase = msg.phase;
+        state.code = msg.code || state.code;
+        state.roles = { bubu: msg.roles.bubu, dudu: msg.roles.dudu };
+        state.ready = { host: !!msg.ready.host, guest: !!msg.ready.guest };
+        state.sceneIndex = msg.sceneIndex;
+        state.love = msg.love;
+        state.chaos = msg.chaos;
+        state.picks = { bubu: msg.picks.bubu, dudu: msg.picks.dudu };
+        state.continues = { host: !!msg.continues.host, guest: !!msg.continues.guest };
+        state.outcomeText = msg.outcomeText || "";
+        state.endingId = msg.endingId;
+        state.notice = msg.notice || "";
+        state.partner = true;
+        state.isHost = false;
+        state.seat = "guest";
+        state.seq = msg.seq;
+        state.error = msg.phase === "disconnected" ? (msg.notice || "Yeni bir oda açıp kodu tekrar paylaşın.") : "";
+        const role = roleOf(state, "guest");
+        if (role && state.picks[role]) localChoice = null;
+        else if (state.phase !== "scene") localChoice = null;
+        if (!state.ready.guest) localReady = false;
+        if (state.continues.guest || state.phase !== "outcome") localCont = false;
+        render();
+      }
+
+      function startHost(isRetry) {
+        const Ctor = peerCtor();
+        if (!Ctor) {
+          failSoft("Bağlantı kütüphanesi yüklenemedi. Sayfayı yenile.");
+          return;
+        }
+        destroyNet();
+        const gen = generation;
+        if (!isRetry) startHost.retries = 0;
+        const code = randomCode();
+        state = initialState();
+        state.phase = "opening";
+        render();
+        peer = new Ctor("bd" + code);
+        netTimer = window.setTimeout(function () {
+          if (gen !== generation) return;
+          if (state.phase === "opening") failSoft("Sinyal sunucusu yanıt vermedi. Biraz sonra yeniden dene.");
+        }, 15000);
+        peer.on("open", function () {
+          if (gen !== generation) return;
+          window.clearTimeout(netTimer);
+          state = hostReduce(initialState(), { type: "hosted", code: code });
+          publish();
+        });
+        peer.on("connection", function (c) {
+          if (gen !== generation) {
+            c.close();
+            return;
+          }
+          if (conn) {
+            c.close();
+            return;
+          }
+          bindConn(c, gen);
+        });
+        peer.on("error", function (err) {
+          if (gen !== generation) return;
+          if (err && err.type === "unavailable-id" && startHost.retries < 4) {
+            startHost.retries += 1;
+            startHost(true);
+            return;
+          }
+          onPeerError(err, gen, false);
+        });
+      }
+      startHost.retries = 0;
+
+      function startGuest(code) {
+        const Ctor = peerCtor();
+        if (!Ctor) {
+          failSoft("Bağlantı kütüphanesi yüklenemedi. Sayfayı yenile.");
+          return;
+        }
+        destroyNet();
+        const gen = generation;
+        state = initialState();
+        state.phase = "joining";
+        state.code = code;
+        state.seat = "guest";
+        render();
+        peer = new Ctor();
+        netTimer = window.setTimeout(function () {
+          if (gen !== generation) return;
+          if (state.phase === "joining") {
+            failSoft("Oda bulunamadı veya sunucu yanıt vermedi. Kodun açık olduğundan emin ol.");
+          }
+        }, 15000);
+        peer.on("open", function () {
+          if (gen !== generation) return;
+          const c = peer.connect("bd" + code, { serialization: "json", reliable: true });
+          if (!c) return;
+          bindConn(c, gen);
+        });
+        peer.on("connection", function (incoming) {
+          incoming.close();
+        });
+        peer.on("error", function (err) {
+          onPeerError(err, gen, false);
+        });
+      }
+
+      function sendGuest(payload) {
+        if (!conn || !connReady) return;
+        conn.send(payload);
+      }
+
+      function pickRole(role) {
+        if (state.phase !== "role") return;
+        const taken = state.roles[role];
+        if (taken && taken !== state.seat) return;
+        if (state.isHost) {
+          state = hostReduce(state, { type: "role", seat: "host", role: role });
+          publish();
+        } else {
+          sendGuest({ t: "role", role: role });
+        }
+      }
+
+      function pressReady() {
+        if (state.phase !== "role") return;
+        if (!roleOf(state, state.seat)) return;
+        if (state.isHost) {
+          state = hostReduce(state, { type: "ready", seat: "host" });
+          publish();
+        } else {
+          localReady = true;
+          render();
+          sendGuest({ t: "ready" });
+        }
+      }
+
+      function choose(id) {
+        if (state.phase !== "scene") return;
+        const role = roleOf(state, state.seat);
+        if (!role || state.picks[role] || localChoice) return;
+        if (state.isHost) {
+          state = hostReduce(state, { type: "choice", seat: "host", id: id });
+          publish();
+        } else {
+          localChoice = id;
+          render();
+          sendGuest({ t: "choice", id: id });
+        }
+      }
+
+      function pressContinue() {
+        if (state.phase !== "outcome") return;
+        if (state.continues[state.seat] || localCont) return;
+        if (state.isHost) {
+          state = hostReduce(state, { type: "continue", seat: "host" });
+          publish();
+        } else {
+          localCont = true;
+          render();
+          sendGuest({ t: "continue" });
+        }
+      }
+
+      function pressRestart() {
+        if (state.phase !== "ending") return;
+        if (state.isHost) {
+          state = hostReduce(state, { type: "restart" });
+          publish();
+        } else sendGuest({ t: "restart" });
+      }
+
+      function leaveRoom() {
+        destroyNet();
+        state = initialState();
+        localChoice = null;
+        localCont = false;
+        localReady = false;
+        render();
+      }
+
+      function partnerSeat() {
+        return state.seat === "host" ? "guest" : "host";
+      }
+
+      function roleName(role) {
+        if (role === "bubu") return "Bubu";
+        if (role === "dudu") return "Dudu";
+        return "Partner";
+      }
+
+      function say(line) {
+        if (els.live.textContent !== line) els.live.textContent = line;
+      }
+
+      function show(el, on) {
+        el.hidden = !on;
+      }
+
+      function render() {
+        const phase = state.phase;
+        const myRole = roleOf(state, state.seat);
+        const scene = SCENES[state.sceneIndex] || SCENES[0];
+        let mood = "morning";
+        if (phase === "scene" || phase === "outcome") mood = scene.mood;
+        if (phase === "ending" && ENDINGS[state.endingId]) mood = ENDINGS[state.endingId].mood;
+        document.body.dataset.mood = mood;
+        els.world.dataset.mood = mood;
+        if (els.theme) els.theme.setAttribute("content", THEME[mood] || THEME.morning);
+        document.body.classList.toggle("playing", phase === "scene" || phase === "outcome" || phase === "ending");
+        show(els.titleblock, phase === "lobby" || phase === "opening" || phase === "hosting" || phase === "joining");
+
+        const bubuTaken = state.roles.bubu && state.roles.bubu !== state.seat;
+        const duduTaken = state.roles.dudu && state.roles.dudu !== state.seat;
+        els.bearBubu.classList.toggle("is-mine", phase === "role" && myRole === "bubu");
+        els.bearDudu.classList.toggle("is-mine", phase === "role" && myRole === "dudu");
+        els.bearBubu.classList.toggle("is-taken", !!bubuTaken && phase === "role");
+        els.bearDudu.classList.toggle("is-taken", !!duduTaken && phase === "role");
+        els.bearBubu.classList.toggle("is-turn", phase === "scene" && myRole === "bubu" && !state.picks.bubu && !localChoice);
+        els.bearDudu.classList.toggle("is-turn", phase === "scene" && myRole === "dudu" && !state.picks.dudu && !localChoice);
+        const roleClickable = phase === "role";
+        els.bearBubu.setAttribute("aria-disabled", roleClickable && !bubuTaken ? "false" : "true");
+        els.bearDudu.setAttribute("aria-disabled", roleClickable && !duduTaken ? "false" : "true");
+        els.bearBubu.setAttribute("aria-pressed", myRole === "bubu" ? "true" : "false");
+        els.bearDudu.setAttribute("aria-pressed", myRole === "dudu" ? "true" : "false");
+        els.bearBubu.tabIndex = roleClickable && !bubuTaken ? 0 : -1;
+        els.bearDudu.tabIndex = roleClickable && !duduTaken ? 0 : -1;
+
+        if (phase === "outcome" && lastPhase !== "outcome" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          els.bearBubu.classList.add("hop");
+          els.bearDudu.classList.add("hop");
+          window.clearTimeout(hopTimer);
+          hopTimer = window.setTimeout(function () {
+            els.bearBubu.classList.remove("hop");
+            els.bearDudu.classList.remove("hop");
+          }, 520);
+        }
+        lastPhase = phase;
+
+        const hudOn = phase === "role" || phase === "scene" || phase === "outcome" || phase === "ending";
+        show(els.hud, hudOn);
+        if (hudOn) {
+          els.hudWho.textContent = myRole ? "Sen " + roleName(myRole) + "'sun" : "Rolünü seç";
+          els.hudRoom.textContent = state.code ? "Oda " + state.code : "";
+          els.loveFill.style.width = clamp(state.love) + "%";
+          els.chaosFill.style.width = clamp(state.chaos) + "%";
+          els.loveMeter.setAttribute("aria-valuenow", String(clamp(state.love)));
+          els.chaosMeter.setAttribute("aria-valuenow", String(clamp(state.chaos)));
+          if (state.notice) {
+            els.notice.hidden = false;
+            els.notice.textContent = state.notice;
+          } else {
+            els.notice.hidden = true;
+            els.notice.textContent = "";
+          }
+        }
+
+        show(els.panelLobby, phase === "lobby" || phase === "opening");
+        show(els.panelHost, phase === "hosting");
+        show(els.panelJoin, phase === "joining");
+        show(els.panelRole, phase === "role");
+        show(els.panelPlay, phase === "scene" || phase === "outcome");
+        show(els.panelEnd, phase === "ending");
+        show(els.panelDown, phase === "disconnected");
+        show(els.leaveBtn, phase === "hosting" || phase === "joining" || phase === "role" || phase === "scene" || phase === "outcome" || phase === "ending");
+        els.leaveBtn.textContent = phase === "hosting" || phase === "joining" ? "Vazgeç" : "Odadan çık";
+
+        els.hostBtn.disabled = phase === "opening";
+        els.hostBtn.textContent = phase === "opening" ? "Açılıyor" : "Oda aç";
+        els.joinBtn.disabled = phase === "opening";
+        els.codeInput.disabled = phase === "opening";
+        if (state.error && (phase === "lobby" || phase === "opening")) {
+          els.lobbyError.hidden = false;
+          els.lobbyError.textContent = state.error;
+        } else {
+          els.lobbyError.hidden = true;
+        }
+
+        if (phase === "hosting") els.roomCode.textContent = state.code;
+
+        if (phase === "role") {
+          const other = partnerSeat();
+          const otherRole = roleOf(state, other);
+          let status = "Partnerin henüz rol seçmedi.";
+          if (otherRole && state.ready[other]) status = roleName(otherRole) + " hazır.";
+          else if (otherRole) status = roleName(otherRole) + " seçildi, henüz hazır değil.";
+          els.roleStatus.textContent = status;
+          const iReady = !!(state.ready[state.seat] || localReady);
+          els.readyBtn.disabled = !myRole || iReady;
+          els.readyBtn.textContent = iReady ? "Hazırsın" : "Hazırım";
+        }
+
+        if (phase === "scene" || phase === "outcome") {
+          els.sceneTitle.textContent = scene.title;
+          els.sceneCount.textContent = "Sahne " + (state.sceneIndex + 1) + " / " + SCENES.length;
+          const chosenId = (myRole && state.picks[myRole]) || localChoice;
+          if (phase === "outcome") {
+            els.storyText.textContent = state.outcomeText;
+            const bubuLabel = optionLabel(scene, "bubu", state.picks.bubu);
+            const duduLabel = optionLabel(scene, "dudu", state.picks.dudu);
+            els.recap.hidden = false;
+            els.recap.textContent = "Bubu: " + bubuLabel + "\nDudu: " + duduLabel;
+            show(els.choices, false);
+            show(els.continueBtn, true);
+            const iCont = !!(state.continues[state.seat] || localCont);
+            const otherCont = !!state.continues[partnerSeat()];
+            els.continueBtn.disabled = iCont;
+            els.continueBtn.textContent = iCont ? "Bekleniyor" : "Devam";
+            let wait = "";
+            if (iCont && !otherCont) wait = roleName(roleOf(state, partnerSeat())) + " devam etmeyi bekliyor.";
+            else if (!iCont && otherCont) wait = roleName(roleOf(state, partnerSeat())) + " hazır. Devam edebilirsin.";
+            if (wait) {
+              els.waitText.hidden = false;
+              els.waitText.textContent = wait;
+            } else els.waitText.hidden = true;
+          } else {
+            els.storyText.textContent = scene.narration;
+            els.recap.hidden = true;
+            show(els.continueBtn, false);
+            show(els.choices, true);
+            const options = myRole ? scene[myRole] : [];
+            while (els.choices.firstChild) els.choices.removeChild(els.choices.firstChild);
+            for (let i = 0; i < options.length; i += 1) {
+              const opt = options[i];
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "choice" + (chosenId === opt.id ? " is-selected" : "");
+              btn.dataset.id = opt.id;
+              btn.textContent = opt.label;
+              btn.disabled = !!chosenId;
+              els.choices.appendChild(btn);
+            }
+            const partnerRole = myRole === "bubu" ? "dudu" : myRole === "dudu" ? "bubu" : null;
+            let wait = "";
+            if (!myRole) wait = "Rolün bu sahnede yok.";
+            else if (chosenId && partnerRole && !state.picks[partnerRole]) wait = roleName(partnerRole) + " seçiyor.";
+            else if (!chosenId && partnerRole && state.picks[partnerRole]) wait = roleName(partnerRole) + " seçimini yaptı. Sıra sende.";
+            if (wait) {
+              els.waitText.hidden = false;
+              els.waitText.textContent = wait;
+            } else els.waitText.hidden = true;
+          }
+        }
+
+        if (phase === "ending") {
+          const ending = ENDINGS[state.endingId] || ENDINGS.orta;
+          els.endTitle.textContent = ending.title;
+          els.endText.textContent = ending.text;
+        }
+
+        if (phase === "disconnected") {
+          els.downText.textContent = state.error || "Yeni bir oda açıp kodu tekrar paylaşın.";
+        }
+
+        let liveLine = "";
+        if (phase === "hosting") liveLine = "Oda kodu " + state.code + ". Partner bekleniyor.";
+        else if (phase === "joining") liveLine = "Odaya bağlanılıyor.";
+        else if (phase === "role") liveLine = els.roleStatus.textContent;
+        else if (phase === "scene") liveLine = scene.narration;
+        else if (phase === "outcome") liveLine = state.outcomeText;
+        else if (phase === "ending") liveLine = (ENDINGS[state.endingId] || ENDINGS.orta).text;
+        else if (phase === "disconnected") liveLine = els.downText.textContent;
+        else if (state.error) liveLine = state.error;
+        say(liveLine);
+      }
+
+      els.hostBtn.addEventListener("click", function () { startHost(false); });
+      els.joinForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const code = els.codeInput.value.replace(/\D/g, "").slice(0, 6);
+        els.codeInput.value = code;
+        if (!/^\d{6}$/.test(code)) {
+          state.error = "Kod 6 haneli olmalı.";
+          render();
+          return;
+        }
+        startGuest(code);
+      });
+      els.codeInput.addEventListener("input", function () {
+        els.codeInput.value = els.codeInput.value.replace(/\D/g, "").slice(0, 6);
+      });
+      els.copyBtn.addEventListener("click", function () {
+        const done = function (ok) {
+          els.copyBtn.textContent = ok ? "Kopyalandı" : "Kodu elle seç";
+          window.setTimeout(function () { els.copyBtn.textContent = "Kodu kopyala"; }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(state.code).then(function () { done(true); }).catch(function () { done(false); });
+        } else done(false);
+      });
+      els.bearBubu.addEventListener("click", function () { pickRole("bubu"); });
+      els.bearDudu.addEventListener("click", function () { pickRole("dudu"); });
+      els.readyBtn.addEventListener("click", pressReady);
+      els.choices.addEventListener("click", function (event) {
+        const btn = event.target.closest("button[data-id]");
+        if (!btn || btn.disabled) return;
+        choose(btn.dataset.id);
+      });
+      els.continueBtn.addEventListener("click", pressContinue);
+      els.restartBtn.addEventListener("click", pressRestart);
+      els.leaveBtn.addEventListener("click", leaveRoom);
+      els.downBtn.addEventListener("click", function () {
+        state = initialState();
+        render();
+      });
+
+      render();
+    }());
+  </script>
+</body>
+</html>
