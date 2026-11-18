@@ -693,7 +693,7 @@
             <ellipse cx="92" cy="112" rx="12" ry="8" fill="#fff" transform="rotate(24 92 112)"></ellipse>
             <ellipse cx="60" cy="118" rx="32" ry="26" fill="#fff"></ellipse>
           </svg>
-          <span>Bubu</span>
+          <span id="bearBubuName">Bubu</span>
         </button>
         <button type="button" class="bear dudu" id="bearDudu">
           <svg viewBox="0 0 120 150" aria-hidden="true">
@@ -714,7 +714,7 @@
             <ellipse cx="60" cy="118" rx="32" ry="26" fill="#c4843a"></ellipse>
             <ellipse cx="60" cy="122" rx="16" ry="12" fill="#f3d7b0"></ellipse>
           </svg>
-          <span>Dudu</span>
+          <span id="bearDuduName">Dudu</span>
         </button>
       </div>
       <p class="bubble bubu" id="bubbleBubu"></p>
@@ -749,7 +749,7 @@
       </div>
 
       <section id="panelLobby">
-        <p class="lead" id="leadText">Aynı cumartesiyi iki telefondan oynayın. Sekiz sahne, ortak bir gün.</p>
+        <p class="lead" id="leadText">Bugün sadece ikimizin.</p>
         <button type="button" class="go" id="hostBtn">Oda aç</button>
         <form id="joinForm">
           <label for="codeInput" id="codeLabel">Oda kodu</label>
@@ -1172,7 +1172,7 @@
       } catch (err) { /* storage kapalı */ }
 
       const UI = {
-        lead: { tr: "Aynı cumartesiyi iki telefondan oynayın. Sekiz sahne, ortak bir gün.", de: "Denselben Samstag auf zwei Handys spielen. Acht Szenen, ein gemeinsamer Tag." },
+        lead: { tr: "Bugün sadece ikimizin.", de: "Heute nur wir zwei." },
         "room-code": { tr: "Oda kodu", de: "Raumcode" },
         join: { tr: "Katıl", de: "Beitreten" },
         open: { tr: "Oda aç", de: "Raum öffnen" },
@@ -1218,8 +1218,8 @@
         "bad-code": { tr: "Oda kodu geçersiz.", de: "Raumcode ungültig." },
         network: { tr: "Sinyal sunucusuna ulaşılamadı. İnterneti kontrol edip yeniden dene.", de: "Der Signalserver ist nicht erreichbar. Internet prüfen und neu versuchen." },
         "connect-fail": { tr: "Bağlantı kurulamadı. Yeniden dene.", de: "Verbindung nicht zustande gekommen. Neu versuchen." },
-        "bubble-play": { tr: "Birlikte oynayalım.", de: "Lass uns spielen." },
-        "bubble-wait": { tr: "Kodu bekliyorum.", de: "Ich warte auf den Code." },
+        "bubble-play": { tr: "Merhaba Minoosss", de: "Merhaba Minoosss" },
+        "bubble-wait": { tr: "Kuzummmm", de: "Kuzummmm" },
         "bubble-me": { tr: "Beni seç.", de: "Nimm mich." },
         "bubble-or": { tr: "Ya da beni.", de: "Oder mich." },
         "mad-dudu": { tr: "Sana kızgınım.", de: "Ich bin sauer auf dich." },
@@ -1707,6 +1707,8 @@
         titleblock: document.getElementById("titleblock"),
         bearBubu: document.getElementById("bearBubu"),
         bearDudu: document.getElementById("bearDudu"),
+        bearBubuName: document.getElementById("bearBubuName"),
+        bearDuduName: document.getElementById("bearDuduName"),
         hud: document.getElementById("hud"),
         hudWho: document.getElementById("hudWho"),
         hudRoom: document.getElementById("hudRoom"),
@@ -2261,10 +2263,13 @@
         const duduPick = state.picks.dudu || (myRole === "dudu" ? localChoice : null);
         els.bearBubu.dataset.pose = phase === "role" && myRole === "bubu" ? "jump" : poseName(phase === "scene" || phase === "outcome" ? bubuPick : "", phase);
         els.bearDudu.dataset.pose = phase === "role" && myRole === "dudu" ? "jump" : poseName(phase === "scene" || phase === "outcome" ? duduPick : "", phase);
-        if (phase === "lobby" || phase === "hosting" || phase === "joining" || phase === "opening") {
+        const intro = phase === "lobby" || phase === "hosting" || phase === "joining" || phase === "opening";
+        if (intro) {
           els.bearBubu.dataset.pose = "jump";
           els.bearDudu.dataset.pose = "sleep";
         }
+        els.bearBubuName.textContent = intro ? "Bubu (Meli)" : "Bubu";
+        els.bearDuduName.textContent = intro ? "Dudu (Uğur)" : "Dudu";
         if (phase === "ending" && state.endingId === "kaos") {
           els.bearBubu.dataset.pose = "shy";
           els.bearDudu.dataset.pose = "storm";
