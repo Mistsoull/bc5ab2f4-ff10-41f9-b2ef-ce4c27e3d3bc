@@ -321,6 +321,29 @@
       border-radius: 28px 28px 0 0;
     }
 
+    .lang {
+      display: flex;
+      justify-content: flex-end;
+      margin: 0 0 8px;
+    }
+
+    .lang button {
+      min-height: 36px;
+      padding: 0 10px;
+      border: 2px solid var(--ink);
+      background: transparent;
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .lang button + button { margin-left: -2px; }
+
+    .lang button.is-on {
+      background: var(--ink);
+      color: var(--sheet);
+    }
+
     .hud-row {
       display: flex;
       justify-content: space-between;
@@ -695,6 +718,10 @@
     </div>
 
     <main class="sheet" id="sheet">
+      <div class="lang" id="langSwitch" role="group" aria-label="Dil">
+        <button type="button" id="langTr">Türkçe</button>
+        <button type="button" id="langDe">Deutsch</button>
+      </div>
       <div id="hud" hidden>
         <div class="hud-row">
           <p id="hudWho"></p>
@@ -702,13 +729,13 @@
         </div>
         <div class="meters">
           <div class="meter">
-            <span>Sevgi</span>
+            <span id="loveName">Sevgi</span>
             <div class="track" id="loveMeter" role="meter" aria-label="Sevgi" aria-valuemin="0" aria-valuemax="100">
               <div id="loveFill"></div>
             </div>
           </div>
           <div class="meter">
-            <span>Kaos</span>
+            <span id="chaosName">Kaos</span>
             <div class="track" id="chaosMeter" role="meter" aria-label="Kaos" aria-valuemin="0" aria-valuemax="100">
               <div id="chaosFill"></div>
             </div>
@@ -718,10 +745,10 @@
       </div>
 
       <section id="panelLobby">
-        <p class="lead">Aynı cumartesiyi iki telefondan oynayın. Sekiz sahne, ortak bir gün.</p>
+        <p class="lead" id="leadText">Aynı cumartesiyi iki telefondan oynayın. Sekiz sahne, ortak bir gün.</p>
         <button type="button" class="go" id="hostBtn">Oda aç</button>
         <form id="joinForm">
-          <label for="codeInput">Oda kodu</label>
+          <label for="codeInput" id="codeLabel">Oda kodu</label>
           <div class="join-row">
             <input id="codeInput" inputmode="numeric" maxlength="6" autocomplete="off" spellcheck="false" placeholder="6 hane">
             <button type="submit" class="go alt" id="joinBtn">Katıl</button>
@@ -731,21 +758,21 @@
       </section>
 
       <section id="panelHost" hidden>
-        <h2>Oda hazır</h2>
-        <p>Bu kodu diğer telefona yaz.</p>
+        <h2 id="hostTitle">Oda hazır</h2>
+        <p id="hostHelp">Bu kodu diğer telefona yaz.</p>
         <p class="code" id="roomCode"></p>
         <button type="button" class="texty" id="copyBtn">Kodu kopyala</button>
-        <p class="wait">Partner bekleniyor.</p>
+        <p class="wait" id="hostWait">Partner bekleniyor.</p>
       </section>
 
       <section id="panelJoin" hidden>
-        <h2>Bağlanıyor</h2>
+        <h2 id="joinTitle">Bağlanıyor</h2>
         <p id="joinStatus">Odaya bağlanılıyor.</p>
       </section>
 
       <section id="panelRole" hidden>
-        <h2>Rolünü seç</h2>
-        <p>İkiniz farklı bir ayı olun.</p>
+        <h2 id="roleTitle">Rolünü seç</h2>
+        <p id="roleHelp">İkiniz farklı bir ayı olun.</p>
         <p id="roleStatus" class="wait"></p>
         <button type="button" class="go" id="readyBtn">Hazırım</button>
       </section>
@@ -770,7 +797,7 @@
       </section>
 
       <section id="panelDown" hidden>
-        <h2>Bağlantı koptu</h2>
+        <h2 id="downTitle">Bağlantı koptu</h2>
         <p id="downText">Yeni bir oda açıp kodu tekrar paylaşın.</p>
         <button type="button" class="go" id="downBtn">Yeni oda</button>
       </section>
@@ -1134,6 +1161,350 @@
         "dudu:cay": "Demlik çoktan ılık"
       };
 
+      let lang = "tr";
+      try {
+        const savedLang = globalThis.localStorage && localStorage.getItem("bd-lang");
+        if (savedLang === "de" || savedLang === "tr") lang = savedLang;
+      } catch (err) { /* storage kapalı */ }
+
+      const UI = {
+        lead: { tr: "Aynı cumartesiyi iki telefondan oynayın. Sekiz sahne, ortak bir gün.", de: "Denselben Samstag auf zwei Handys spielen. Acht Szenen, ein gemeinsamer Tag." },
+        "room-code": { tr: "Oda kodu", de: "Raumcode" },
+        join: { tr: "Katıl", de: "Beitreten" },
+        open: { tr: "Oda aç", de: "Raum öffnen" },
+        opening: { tr: "Açılıyor", de: "Öffnet" },
+        "room-ready": { tr: "Oda hazır", de: "Raum ist bereit" },
+        "share-code": { tr: "Bu kodu diğer telefona yaz.", de: "Schreib diesen Code ins andere Handy." },
+        copy: { tr: "Kodu kopyala", de: "Code kopieren" },
+        copied: { tr: "Kopyalandı", de: "Kopiert" },
+        "copy-manual": { tr: "Kodu elle seç", de: "Code von Hand wählen" },
+        "waiting-partner": { tr: "Partner bekleniyor.", de: "Partner wird erwartet." },
+        "connecting-title": { tr: "Bağlanıyor", de: "Verbindung" },
+        connecting: { tr: "Odaya bağlanılıyor.", de: "Verbindung zum Raum." },
+        "pick-role-title": { tr: "Rolünü seç", de: "Wähl deine Rolle" },
+        "two-bears": { tr: "İkiniz farklı bir ayı olun.", de: "Ihr seid zwei verschiedene Bären." },
+        ready: { tr: "Hazırım", de: "Ich bin bereit" },
+        "ready-done": { tr: "Hazırsın", de: "Du bist bereit" },
+        cont: { tr: "Devam", de: "Weiter" },
+        waiting: { tr: "Bekleniyor", de: "Warten" },
+        replay: { tr: "Günü yeniden oyna", de: "Tag nochmal spielen" },
+        "disconnected-title": { tr: "Bağlantı koptu", de: "Verbindung weg" },
+        rejoin: { tr: "Yeni bir oda açıp kodu tekrar paylaşın.", de: "Öffnet einen neuen Raum und teilt den Code noch einmal." },
+        "new-room": { tr: "Yeni oda", de: "Neuer Raum" },
+        leave: { tr: "Odadan çık", de: "Raum verlassen" },
+        cancel: { tr: "Vazgeç", de: "Zurück" },
+        love: { tr: "Sevgi", de: "Nähe" },
+        chaos: { tr: "Kaos", de: "Chaos" },
+        scene: { tr: "Sahne", de: "Szene" },
+        room: { tr: "Oda", de: "Raum" },
+        "hud-pick": { tr: "Rolünü seç", de: "Wähl deine Rolle" },
+        "no-role-yet": { tr: "Partnerin henüz rol seçmedi.", de: "Dein Partner hat noch keine Rolle." },
+        "shift-chaos": { tr: "Kaos öne geçti.", de: "Chaos liegt vorn." },
+        "shift-love": { tr: "Sevgi öne geçti.", de: "Nähe liegt vorn." },
+        "shift-both": { tr: "İkisi de kıpırdadı.", de: "Beides hat sich bewegt." },
+        "role-taken": { tr: "Bu rol dolu. Diğerini seç.", de: "Diese Rolle ist weg. Nimm die andere." },
+        "pick-role": { tr: "Önce bir rol seç.", de: "Wähl zuerst eine Rolle." },
+        "new-day": { tr: "Yeni gün. Rolleri yeniden seçin.", de: "Neuer Tag. Rollen neu wählen." },
+        "code-length": { tr: "Kod 6 haneli olmalı.", de: "Der Code hat 6 Ziffern." },
+        "no-lib": { tr: "Bağlantı kütüphanesi yüklenemedi. Sayfayı yenile.", de: "Die Verbindungslibrary ist nicht da. Seite neu laden." },
+        "slow-server": { tr: "Sinyal sunucusu yanıt vermedi. Biraz sonra yeniden dene.", de: "Der Signalserver antwortet nicht. Versuch es gleich nochmal." },
+        "no-room-timeout": { tr: "Oda bulunamadı veya sunucu yanıt vermedi. Kodun açık olduğundan emin ol.", de: "Raum nicht gefunden oder der Server schweigt. Der Code muss offen sein." },
+        "peer-missing": { tr: "Bu kodla açık bir oda yok. Arkadaşının oda ekranında beklediğinden emin ol.", de: "Mit diesem Code ist kein Raum offen. Die andere Person muss auf dem Raumschirm warten." },
+        "bad-browser": { tr: "Bu tarayıcı iki kişilik bağlantıyı açamıyor. Chrome veya Safari dene.", de: "Dieser Browser schafft die Verbindung zu zweit nicht. Nimm Chrome oder Safari." },
+        "bad-code": { tr: "Oda kodu geçersiz.", de: "Raumcode ungültig." },
+        network: { tr: "Sinyal sunucusuna ulaşılamadı. İnterneti kontrol edip yeniden dene.", de: "Der Signalserver ist nicht erreichbar. Internet prüfen und neu versuchen." },
+        "connect-fail": { tr: "Bağlantı kurulamadı. Yeniden dene.", de: "Verbindung nicht zustande gekommen. Neu versuchen." },
+        "bubble-play": { tr: "Birlikte oynayalım.", de: "Lass uns spielen." },
+        "bubble-wait": { tr: "Kodu bekliyorum.", de: "Ich warte auf den Code." },
+        "bubble-me": { tr: "Beni seç.", de: "Nimm mich." },
+        "bubble-or": { tr: "Ya da beni.", de: "Oder mich." },
+        "no-role-here": { tr: "Rolün bu sahnede yok.", de: "Du hast in dieser Szene keine Rolle." },
+        language: { tr: "Dil", de: "Sprache" },
+        "live-host": { tr: "Oda kodu", de: "Raumcode" },
+        "live-wait": { tr: "Partner bekleniyor.", de: "Partner wird erwartet." }
+      };
+
+      const DE = {
+        endings: {
+          uyumlu: { title: "Derselbe Takt", text: "Viel Nähe, das Haus ist ruhig. Bubu erzählt noch, Dudu hört zu, und diesmal lachen beide. Als wäre der Samstag genau dafür gemacht." },
+          kaos: { title: "Ein schönes Durcheinander", text: "Pläne lagen übereinander, ein Witz ging zu weit, und trotzdem hat niemand die Tür geknallt. In diesem Haus ist Chaos auch eine Art Umarmung. Morgen kann es ruhiger sein." },
+          orta: { title: "Genau wie ihr", text: "Nicht alles lief glatt, und nichts ist zerbrochen. Etwas Feilschen, etwas Tee, etwas Lachen. Der Tag endete in der Mitte eures Tempos." }
+        },
+        meta: {
+          morning: { place: "Schlafzimmer", bubuSay: "Der Tag ist da!", duduSay: "Noch fünf Minuten." },
+          breakfast: { place: "Küche", bubuSay: "Ich hab Hunger!", duduSay: "Tee aufsetzen." },
+          ready: { place: "Spiegel", bubuSay: "Was meinst du?", duduSay: "Nicht hetzen." },
+          afternoon: { place: "Tür", bubuSay: "Lass uns raus.", duduSay: "Ist der Plan klar?" },
+          stop: { place: "Straße", bubuSay: "Hier bleiben!", duduSay: "Schatten ist gut." },
+          crisis: { place: "Wohnzimmer", bubuSay: "Ich dachte, es war ein Witz.", duduSay: "Eine Minute." },
+          dinner: { place: "Tisch", bubuSay: "Was essen wir?", duduSay: "Etwas Ruhiges." },
+          evening: { place: "Fenster", bubuSay: "Soll der Tag enden?", duduSay: "Nebeneinander." }
+        },
+        say: {
+          disari: "Raus!", uyu: "Noch ein bisschen.", film: "Ich mach den Film an.", cik: "Okay, ich komme.",
+          kahvalti: "Erst der Bauch.", gidik: "Erwischt!", pankek: "Mit Erdbeeren!",
+          birlikte: "Zusammen.", surpriz: "Augen zu.", tost: "Schlicht reicht.",
+          yardim: "Ich bin auch dabei.", tatli: "Marmelade dazu.", park: "In den Park!",
+          alisveris: "Zu den Schaufenstern!", ev: "Wir bleiben.", tur: "Eine kurze Runde.",
+          saka: "War ein Witz!", ozur: "Tut mir leid.", saril: "Komm her.", kirildim: "Das hat wehgetan.",
+          komik: "Ich lache trotzdem.", konus: "Lass uns reden.", yuruyus: "Spazieren.",
+          battaniye: "Decke.", cay: "Tee ist fertig.", sapka: "Mütze!",
+          esofman: "So ist es bequem.", uyum: "Ich passe mich an.", mont: "Mantel ist an.",
+          evkiyafet: "Ich bin zu Hause.", renk: "Dieselbe Farbe.", dondurma: "Eis!",
+          foto: "Lächeln.", bank: "Hinsetzen?", cek: "Du fotografierst.", golge: "Schatten ist gut.",
+          makarna: "Der Topf kocht.", disariye: "Draußen essen.", siparis: "Bestellt.",
+          corba: "Suppe ist heiß.", evyemegi: "Hausessen.", tabak: "Ein Teller."
+        },
+        hint: {
+          "bubu:disari": "Die Tür auf und die Sonne zeigen",
+          "bubu:kahvalti": "Zuerst in die Küche ziehen",
+          "bubu:gidik": "Die Decke wird zum Schlachtfeld",
+          "dudu:uyu": "Die Augen sind noch zu",
+          "dudu:film": "Die Fernbedienung liegt unterm Kissen",
+          "dudu:cik": "Die Schuhe sind diesmal da",
+          "bubu:pankek": "Erdbeeren und Honig, großer Plan",
+          "bubu:birlikte": "Zwei Leute am Herd",
+          "bubu:surpriz": "Augen zu, Teller versteckt",
+          "dudu:tost": "Tee, Brot, Ruhe",
+          "dudu:yardim": "Mehl darf fliegen",
+          "dudu:tatli": "Das Marmeladenglas geht auf",
+          "bubu:sapka": "Eine kleine Show im Spiegel",
+          "bubu:esofman": "Rausgehen ist keine Pflicht",
+          "bubu:uyum": "Was Dudu anzieht",
+          "dudu:mont": "Die Luft ist kühl, der Mantel sicher",
+          "dudu:evkiyafet": "Die Hausschuhe bleiben an",
+          "dudu:renk": "Ein passendes Oberteil aus dem Schrank",
+          "bubu:park": "Baum, Bank, vielleicht Eis",
+          "bubu:alisveris": "Schaufenster rufen Bubu",
+          "bubu:ev": "Das Sofa kann auch heute gewinnen",
+          "dudu:park": "Ein kurzer grüner Plan",
+          "dudu:ev": "Die Decke ist noch warm",
+          "dudu:tur": "Die Nachbarschaft, keine Eile",
+          "bubu:dondurma": "Aufregung an der Theke",
+          "bubu:foto": "Licht stimmt, Pose steht",
+          "bubu:bank": "Ein Atemzug, die Füße ruhen",
+          "dudu:dondurma": "Eine kleine Waffel reicht",
+          "dudu:cek": "Im Bild zu sein ist schwer",
+          "dudu:golge": "Die Sonne ist zu hell",
+          "bubu:saka": "Noch ein Witz obendrauf",
+          "bubu:ozur": "Die Stimme leiser machen",
+          "bubu:saril": "Näher kommen, ohne zu reden",
+          "dudu:kirildim": "Das Schweigen bleibt",
+          "dudu:komik": "Lachen ist noch kein Verzeihen",
+          "dudu:konus": "Sich setzen und es beim Namen nennen",
+          "bubu:makarna": "Großer Topf, viel Soße",
+          "bubu:disariye": "Straße, Tisch, Gedränge",
+          "bubu:siparis": "Die Speisekarte auf dem Handy",
+          "dudu:corba": "Kleiner Topf, wenige Worte",
+          "dudu:evyemegi": "Der Herd geht an",
+          "dudu:tabak": "Zwei Gabeln, ein Teller",
+          "bubu:film": "Das Licht dimmen",
+          "bubu:yuruyus": "Die Tür ein letztes Mal auf",
+          "bubu:battaniye": "Das Sofa wird zur Burg",
+          "dudu:film": "Denselben Film wählen",
+          "dudu:yuruyus": "Unter der Lampe, langsame Schritte",
+          "dudu:cay": "Die Kanne ist schon warm"
+        },
+        scenes: {
+          morning: {
+            title: "Samstagmorgen",
+            narration: "Die Vorhänge stehen einen Spalt auf. Bubu ist längst wach, Dudu ist in der Decke verschwunden. Diese erste Entscheidung gibt dem Tag den Takt.",
+            bubu: { disari: "Lass uns raus", kahvalti: "Erst frühstücken", gidik: "Ich kitzle dich" },
+            dudu: { uyu: "Noch fünf Minuten", film: "Film im Bett", cik: "Okay, wir gehen" },
+            resolve: {
+              "disari|uyu": "Bubu wartet an der Tür. Dudu sagt aus der Decke noch fünf Minuten. Das Feilschen wird ein Lachen.",
+              "disari|film": "Bubu hat die Jacke an, Dudu hält die Fernbedienung hin. Zwischen Tür und Sofa bleiben sie stehen.",
+              "disari|cik": "Beide stehen an der Tür. Die Sonne trifft genau, die Schuhe sind beim ersten Mal da.",
+              "kahvalti|uyu": "Bubu singt in der Küche. Dudu sagt fünf Minuten, der Geruch holt ihn früher.",
+              "kahvalti|film": "Das Frühstückstablett kommt ins Bett. Der Film geht an, der erste Bissen ist warm.",
+              "kahvalti|cik": "Dudu ist bereit zum Gehen, Bubu sagt zuerst der Magen. Sie gehen satt in den Park.",
+              "gidik|uyu": "Der Deckenkrieg beginnt. Dudu lacht und wirft dann das Kissen.",
+              "gidik|film": "Das Kitzeln wird zum Vorspann. Die erste Filmszene bleibt halb, beide sind außer Atem.",
+              "gidik|cik": "Dudu will gerade los, wird gekitzelt, der Schlüssel fällt. Beide lachen."
+            }
+          },
+          breakfast: {
+            title: "Frühstück",
+            narration: "Die Küche ist noch warm. Die erste gemeinsame Entscheidung liegt auf dem Teller: süß, schlicht oder eine Überraschung?",
+            bubu: { pankek: "Pfannkuchen mit Erdbeeren", birlikte: "Wir machen es zusammen", surpriz: "Eine Überraschung für dich" },
+            dudu: { tost: "Tee und Toast reichen", yardim: "Ich helfe mit", tatli: "Süß darf auch sein" },
+            resolve: {
+              "pankek|tost": "Auf dem Teller Pfannkuchen, in der Ecke Toast. Sie teilen durch die Mitte.",
+              "pankek|yardim": "Beim Rühren fliegt Mehl. Auf Bubus Wange bleibt ein weißer Fleck.",
+              "pankek|tatli": "Erdbeeren, Honig und zwei Gabeln. Als der Teller leer ist, schweigen sie und lächeln.",
+              "birlikte|tost": "Zusammen schlichter Toast. Still, warm, genau Dudus Tempo.",
+              "birlikte|yardim": "Vier Hände, eine Küche. Einer streicht Butter, einer kocht Tee.",
+              "birlikte|tatli": "Auf den gemeinsamen Pfannkuchen kommt Marmelade. Der Löffelstreit endet süß.",
+              "surpriz|tost": "Bubu sagt Augen zu. Dudu erwartet Toast und bekommt Pfannkuchen.",
+              "surpriz|yardim": "Die Überraschung platzt, weil Dudu in die Küche kommt. Den Rest machen sie zusammen fertig.",
+              "surpriz|tatli": "Die Überraschung sitzt. Der süße Teller ist genau das, worauf Dudu gehofft hat."
+            }
+          },
+          ready: {
+            title: "Fertig machen",
+            narration: "Der Spiegel steckt in der Schranktür. Bubu hat schon etwas gewählt, Dudu schaut noch auf den Mantel am Haken. Wenn ihr rausgeht, ist die Kleidung auch eine Absprache.",
+            bubu: { sapka: "Mütze auf", esofman: "Jogginghose reicht", uyum: "Ich passe mich dir an" },
+            dudu: { mont: "Ich nehme meinen Mantel", evkiyafet: "Hausklamotten bleiben", renk: "Dieselbe Farbe" },
+            resolve: {
+              "sapka|mont": "Mütze und Mantel treffen sich an derselben Tür. Beide sind für draußen angezogen.",
+              "sapka|evkiyafet": "Bubu hält die Mütze hin, Dudu steht in Hausschuhen. Der Spiegel zeigt ein unentschlossenes Paar.",
+              "sapka|renk": "Die Farbe der Mütze trifft Dudus Shirt. Ein kleiner Sieg.",
+              "esofman|mont": "Jogginghose und Mantel passen nicht in denselben Satz. Einer sagt Park, einer Wind.",
+              "esofman|evkiyafet": "Beide ziehen sich an, als blieben sie zu Hause. Das Sofa atmet auf.",
+              "esofman|renk": "Die Jogginghose ist grau, Dudu holt auch ein graues Oberteil. Harmonie, wenig Aufregung.",
+              "uyum|mont": "Bubu sieht Dudus Mantel und nimmt die eigene Jacke. Der Spiegel lächelt.",
+              "uyum|evkiyafet": "Bubu will sich anpassen, Dudu will zu Hause bleiben. Beide gehen einen Schritt zurück.",
+              "uyum|renk": "Dieselbe Farbe, dasselbe Tempo. Vor der Tür nicken sie sich zu."
+            }
+          },
+          afternoon: {
+            title: "Nachmittag",
+            narration: "Es ist Mittag. Draußen scheint die Sonne, drinnen besteht das Sofa auf sich. Der Plan hängt daran, dass eure Schritte zusammenfinden.",
+            bubu: { park: "Lass uns in den Park", alisveris: "Lass uns shoppen", ev: "Wir bleiben zu Hause" },
+            dudu: { park: "Park ist eine gute Idee", ev: "Zu Hause ist ruhiger", tur: "Eine kurze Runde" },
+            resolve: {
+              "park|park": "Dieselbe Bank, zwei Eis. Auch ohne viele Worte ist es gut.",
+              "park|ev": "Bubu hat die Schuhe an, Dudu die Hausschuhe. An der Tür feilschen sie um eine halbe Stunde Park.",
+              "park|tur": "Sie gehen bis zum Park und denselben Weg zurück. Kurz und genau richtig.",
+              "alisveris|park": "Bubu zeigt das Schaufenster, Dudu den Baum. Erst Park, auf dem Rückweg ein Laden.",
+              "alisveris|ev": "Die Tütenfantasie verliert gegen die Decke. Bubu verschiebt die Bestellung und fällt aufs Sofa.",
+              "alisveris|tur": "Die kurze Runde wird an einem Schaufenster länger. Als Dudu müde ist, gehört ihnen die erste Bank.",
+              "ev|park": "Dudu ist bereit für draußen, Bubu hat das Spiel an. Das Fenster ist offen, beide sind halb draußen.",
+              "ev|ev": "Beide zu Hause. Tee, ein Spiel, niemand schaut auf die Uhr.",
+              "ev|tur": "Dudu sagt kurze Runde, Bubu feilscht um fünfzehn Minuten. Die Runde dauert länger."
+            }
+          },
+          stop: {
+            title: "Kleine Pause",
+            narration: "Mitten auf dem Weg gibt es Eis, eine Bank und den Schatten, in dem Dudu immer stehen bleibt. Einer will Tempo, einer will Luft holen.",
+            bubu: { dondurma: "Lass uns Eis holen", foto: "Lass uns ein Foto machen", bank: "Wir setzen uns auf die Bank" },
+            dudu: { dondurma: "Eis ist gut", cek: "Du fotografierst, ich schaue", golge: "Wir bleiben im Schatten" },
+            resolve: {
+              "dondurma|dondurma": "Zwei Waffeln, dieselbe Theke. Noch vor dem Schmelzen gibt es einen geteilten Bissen.",
+              "dondurma|cek": "Bubu zeigt das Eis, Dudu die Kamera. Erst ein Bild, dann die Waffel.",
+              "dondurma|golge": "Die Waffel in der Sonne, Dudu im Schatten. Bubu kommt zwei Schritte zurück in den Schatten.",
+              "foto|dondurma": "Bubu stellt die Pose, Dudu steht schon in der Eisschlange. Das Foto wird mit schmelzender Waffel gemacht.",
+              "foto|cek": "Dudu gibt Bubu die Kamera und lächelt am Rand. Das Bild hat beide.",
+              "foto|golge": "Bubu will Licht, Dudu Schatten. Das Foto bleibt halb, das Lachen ganz.",
+              "bank|dondurma": "Bubu zeigt die Bank, Dudu kommt mit der Waffel. Das Hinsetzen hat eine süße Verspätung.",
+              "bank|cek": "Ein Bild auf der Bank. Dudu will außerhalb bleiben, Bubu zieht ihn ins Bild.",
+              "bank|golge": "Die Bank im Schatten ist genau der Platz für beide. Eine Weile schaut niemand auf die Uhr."
+            }
+          },
+          crisis: {
+            title: "Ein kleiner Riss",
+            narration: "Bubu macht sich über ein altes Foto von Dudu lustig. Der Witz ist groß, Dudus Schweigen noch größer. Jetzt wird es erklärt oder es wächst.",
+            bubu: { saka: "Das war ein Witz", ozur: "Es tut mir leid", saril: "Komm her, Umarmung" },
+            dudu: { kirildim: "Ich bin etwas verletzt", komik: "Eigentlich war es lustig", konus: "Lass uns reden" },
+            resolve: {
+              "saka|kirildim": "Auf den Witz kommt noch ein Witz. Der Raum wird mit einem Mal kühl.",
+              "saka|komik": "Dudu lacht verspätet. Ohne zu fragen geht das nicht noch einmal, sagt er.",
+              "saka|konus": "Sie setzen sich und reden. Als der Witz klar ist, sinken die Schultern.",
+              "ozur|kirildim": "Die Entschuldigung kommt an, aber Dudu braucht etwas Zeit. Nebeneinander, still.",
+              "ozur|komik": "Dudu sagt, eine Entschuldigung braucht es nicht. Bubu umarmt ihn trotzdem.",
+              "ozur|konus": "Ein ruhiges Gespräch. Beide sagen beim Namen, woran es gehakt hat.",
+              "saril|kirildim": "Die Umarmung kommt etwas früh. Dudu spannt sich erst an und wird dann langsam weich.",
+              "saril|komik": "Die Umarmung öffnet sich in ein Lachen. Das Foto ist wieder komisch.",
+              "saril|konus": "Erst eine kurze Umarmung, dann zwei ehrliche Sätze."
+            }
+          },
+          dinner: {
+            title: "Abendessen",
+            narration: "Die Küche geht wieder an, diesmal für den Abend. Einer will den Topf, einer die Tür, einer die Speisekarte auf dem Handy. Der Tisch entsteht aus der Wahl.",
+            bubu: { makarna: "Wir machen Nudeln", disariye: "Wir essen draußen", siparis: "Wir bestellen" },
+            dudu: { corba: "Suppe reicht", evyemegi: "Hausessen", tabak: "Wir essen vom selben Teller" },
+            resolve: {
+              "makarna|corba": "Im Topf Nudeln, daneben Suppe. Jeder stellt seinen Löffel hin und probiert dann.",
+              "makarna|evyemegi": "Das Hausessen wird Nudeln. Wieder Mehl in der Luft, diesmal lachen beide.",
+              "makarna|tabak": "Ein Teller, zwei Gabeln. Die Nudeln werden durch die Mitte geteilt.",
+              "disariye|corba": "Bubu hat die Schuhe an, Dudu den Topfdeckel offen. Tür gegen Herd.",
+              "disariye|evyemegi": "Der Plan nach draußen stößt aufs Hausessen. Die Speisekarte endet in der Küche.",
+              "disariye|tabak": "Dudu will teilen, Bubu will die Straße. Sie finden draußen einen Tisch und einen Teller.",
+              "siparis|corba": "Die Bestellung verspätet sich, Dudu hat die Suppe schon eingeschüttet. Als es klingelt, gibt es zwei Essen.",
+              "siparis|evyemegi": "Bubu öffnet das Handy, Dudu den Herd. Einer storniert, einer macht den Topf aus. Dann entscheiden sie zusammen.",
+              "siparis|tabak": "Die Schachtel landet auf einem Teller. Das Display zur Seite, die Löffel in die Mitte."
+            }
+          },
+          evening: {
+            title: "Abend",
+            narration: "Der Tag wird langsamer. Das Licht wird orange. Wie ihr diesen Abend schließt, fasst den ganzen Samstag in einen Satz.",
+            bubu: { film: "Filmabend", yuruyus: "Lass uns spazieren", battaniye: "Decke und Kuscheln" },
+            dudu: { film: "Film ist eine gute Idee", yuruyus: "Spaziergang passt", cay: "Ich koche Tee" },
+            resolve: {
+              "film|film": "Derselbe Film, eine Decke. Vor dem Abspann döst schon jemand.",
+              "film|yuruyus": "Bubu zeigt das Sofa, Dudu die Tür. Der Film wird auf nach dem Spaziergang verschoben.",
+              "film|cay": "Der Film beginnt, der Tee kommt noch recht. Dampf mischt sich mit dem Bild.",
+              "yuruyus|film": "Dudu will den Film, Bubu die Straße. Eine Runde durchs Viertel, dann dasselbe Sofa.",
+              "yuruyus|yuruyus": "Sie gehen unter der Lampe. Wenig Worte, die Schritte passen.",
+              "yuruyus|cay": "Dudu füllt den Tee in die Thermoskanne. Der Spaziergang wird mit einem warmen Becher ganz.",
+              "battaniye|film": "Die Decke wird zur Burg, der Filmton kommt von draußen. Beide sind drinnen.",
+              "battaniye|yuruyus": "Bubu will die Burg nicht verlassen. Dudu öffnet das Fenster, die Nacht kommt herein.",
+              "battaniye|cay": "Tee, Decke, Schulter an Schulter. Der Tag braucht keinen weiteren Plan."
+            }
+          }
+        }
+      };
+
+      function ui(key) {
+        const row = UI[key];
+        if (!row) return key;
+        return lang === "de" ? row.de : row.tr;
+      }
+
+      function scenePack(scene) {
+        return lang === "de" && scene && DE.scenes[scene.id] ? DE.scenes[scene.id] : null;
+      }
+
+      function sceneTitle(scene) {
+        const pack = scenePack(scene);
+        return pack ? pack.title : scene.title;
+      }
+
+      function sceneNarration(scene) {
+        const pack = scenePack(scene);
+        return pack ? pack.narration : scene.narration;
+      }
+
+      function resultText(scene, key, fallback) {
+        const pack = scenePack(scene);
+        if (pack && pack.resolve && pack.resolve[key]) return pack.resolve[key];
+        return fallback || "";
+      }
+
+      function metaOf(id) {
+        const base = META[id] || {};
+        if (lang !== "de" || !DE.meta[id]) return base;
+        return { clock: base.clock, place: DE.meta[id].place, bubuSay: DE.meta[id].bubuSay, duduSay: DE.meta[id].duduSay };
+      }
+
+      function sayOf(id) {
+        if (!id) return "";
+        if (lang === "de" && DE.say[id]) return DE.say[id];
+        return SAY[id] || "";
+      }
+
+      function hintOf(role, id) {
+        const key = role + ":" + id;
+        if (lang === "de" && DE.hint[key]) return DE.hint[key];
+        return HINT[key] || "";
+      }
+
+      function endingOf(id) {
+        const base = ENDINGS[id] || ENDINGS.orta;
+        if (lang === "de" && DE.endings[id || "orta"]) {
+          const extra = DE.endings[id || "orta"];
+          return { title: extra.title, text: extra.text, mood: base.mood };
+        }
+        return base;
+      }
+
+      function sceneById(id) {
+        for (let i = 0; i < SCENES.length; i += 1) {
+          if (SCENES[i].id === id) return SCENES[i];
+        }
+        return null;
+      }
+
       function initialState() {
         return {
           phase: "lobby",
@@ -1167,6 +1538,8 @@
       }
 
       function optionLabel(scene, role, id) {
+        const pack = scenePack(scene);
+        if (pack && pack[role] && pack[role][id]) return pack[role][id];
         const list = scene[role] || [];
         for (let i = 0; i < list.length; i += 1) {
           if (list[i].id === id) return list[i].label;
@@ -1199,7 +1572,7 @@
           if (next.roles.bubu === seat) next.roles.bubu = null;
           if (next.roles.dudu === seat) next.roles.dudu = null;
           if (next.roles[role] && next.roles[role] !== seat) {
-            next.notice = "Bu rol dolu. Diğerini seç.";
+            next.notice = "role-taken";
             next.ready[seat] = false;
           } else {
             next.roles[role] = seat;
@@ -1211,7 +1584,7 @@
           if (next.phase !== "role") return next;
           const seat = action.seat;
           if (!roleOf(next, seat)) {
-            next.notice = "Önce bir rol seç.";
+            next.notice = "pick-role";
             return next;
           }
           next.ready[seat] = true;
@@ -1246,9 +1619,9 @@
             next.act = actFor(result);
             next.shift = { love: result.love, chaos: result.chaos };
             next.log.push({
-              t: scene.title,
-              b: optionLabel(scene, "bubu", next.picks.bubu),
-              d: optionLabel(scene, "dudu", next.picks.dudu)
+              id: scene.id,
+              b: next.picks.bubu,
+              d: next.picks.dudu
             });
             next.phase = "outcome";
             next.continues = { host: false, guest: false };
@@ -1284,13 +1657,13 @@
           fresh.isHost = next.isHost;
           fresh.seat = next.seat;
           fresh.seq = next.seq;
-          fresh.notice = "Yeni gün. Rolleri yeniden seçin.";
+          fresh.notice = "new-day";
           return fresh;
         }
         if (action.type === "disconnect") {
           next.phase = "disconnected";
           next.partner = false;
-          next.error = action.message || "Yeni bir oda açıp kodu tekrar paylaşın.";
+          next.error = action.message || "rejoin";
           return next;
         }
         return next;
@@ -1335,6 +1708,21 @@
         chaosFill: document.getElementById("chaosFill"),
         loveMeter: document.getElementById("loveMeter"),
         chaosMeter: document.getElementById("chaosMeter"),
+        loveName: document.getElementById("loveName"),
+        chaosName: document.getElementById("chaosName"),
+        langSwitch: document.getElementById("langSwitch"),
+        langTr: document.getElementById("langTr"),
+        langDe: document.getElementById("langDe"),
+        leadText: document.getElementById("leadText"),
+        codeLabel: document.getElementById("codeLabel"),
+        hostTitle: document.getElementById("hostTitle"),
+        hostHelp: document.getElementById("hostHelp"),
+        hostWait: document.getElementById("hostWait"),
+        joinTitle: document.getElementById("joinTitle"),
+        joinStatus: document.getElementById("joinStatus"),
+        roleTitle: document.getElementById("roleTitle"),
+        roleHelp: document.getElementById("roleHelp"),
+        downTitle: document.getElementById("downTitle"),
         notice: document.getElementById("notice"),
         panelLobby: document.getElementById("panelLobby"),
         panelHost: document.getElementById("panelHost"),
@@ -1390,6 +1778,7 @@
       let hopTimer = 0;
       let fxKind = "";
       let shownScene = "";
+      let copyFlash = false;
 
       function peerCtor() {
         if (typeof Peer === "function") return Peer;
@@ -1432,7 +1821,7 @@
           endingId: s.endingId,
           act: s.act || "",
           shift: s.shift ? { love: s.shift.love, chaos: s.shift.chaos } : null,
-          log: (s.log || []).map(function (item) { return { t: item.t, b: item.b, d: item.d }; }),
+          log: (s.log || []).map(function (item) { return { id: item.id || "", b: item.b, d: item.d, t: item.t || "" }; }),
           notice: s.notice
         };
       }
@@ -1479,7 +1868,7 @@
 
       function handleDrop() {
         if (inSession()) failHard();
-        else failSoft("Bağlantı kurulamadı. Yeniden dene.");
+        else failSoft("connect-fail");
       }
 
       function onPeerError(err, gen, retryHost) {
@@ -1487,24 +1876,24 @@
         const type = err && err.type;
         if (type === "unavailable-id" && retryHost) return;
         if (type === "peer-unavailable") {
-          failSoft("Bu kodla açık bir oda yok. Arkadaşının oda ekranında beklediğinden emin ol.");
+          failSoft("peer-missing");
           return;
         }
         if (type === "browser-incompatible") {
-          failSoft("Bu tarayıcı iki kişilik bağlantıyı açamıyor. Chrome veya Safari dene.");
+          failSoft("bad-browser");
           return;
         }
         if (type === "invalid-id") {
-          failSoft("Oda kodu geçersiz.");
+          failSoft("bad-code");
           return;
         }
         if (type === "network" || type === "server-error" || type === "socket-closed" || type === "socket-error" || type === "disconnected" || type === "webrtc") {
           if (inSession()) failHard();
-          else failSoft("Sinyal sunucusuna ulaşılamadı. İnterneti kontrol edip yeniden dene.");
+          else failSoft("network");
           return;
         }
         if (inSession()) failHard();
-        else failSoft("Bağlantı kurulamadı. Yeniden dene.");
+        else failSoft("connect-fail");
       }
 
       function bindConn(c, gen) {
@@ -1579,7 +1968,7 @@
         state.isHost = false;
         state.seat = "guest";
         state.seq = msg.seq;
-        state.error = msg.phase === "disconnected" ? (msg.notice || "Yeni bir oda açıp kodu tekrar paylaşın.") : "";
+        state.error = msg.phase === "disconnected" ? "rejoin" : "";
         const role = roleOf(state, "guest");
         if (role && state.picks[role]) localChoice = null;
         else if (state.phase !== "scene") localChoice = null;
@@ -1591,7 +1980,7 @@
       function startHost(isRetry) {
         const Ctor = peerCtor();
         if (!Ctor) {
-          failSoft("Bağlantı kütüphanesi yüklenemedi. Sayfayı yenile.");
+          failSoft("no-lib");
           return;
         }
         destroyNet();
@@ -1604,7 +1993,7 @@
         peer = new Ctor("bd" + code);
         netTimer = window.setTimeout(function () {
           if (gen !== generation) return;
-          if (state.phase === "opening") failSoft("Sinyal sunucusu yanıt vermedi. Biraz sonra yeniden dene.");
+          if (state.phase === "opening") failSoft("slow-server");
         }, 15000);
         peer.on("open", function () {
           if (gen !== generation) return;
@@ -1638,7 +2027,7 @@
       function startGuest(code) {
         const Ctor = peerCtor();
         if (!Ctor) {
-          failSoft("Bağlantı kütüphanesi yüklenemedi. Sayfayı yenile.");
+          failSoft("no-lib");
           return;
         }
         destroyNet();
@@ -1652,7 +2041,7 @@
         netTimer = window.setTimeout(function () {
           if (gen !== generation) return;
           if (state.phase === "joining") {
-            failSoft("Oda bulunamadı veya sunucu yanıt vermedi. Kodun açık olduğundan emin ol.");
+            failSoft("no-room-timeout");
           }
         }, 15000);
         peer.on("open", function () {
@@ -1774,16 +2163,49 @@
       }
 
       function bubbleText(role, id, phase, scene) {
-        const meta = META[scene.id] || {};
+        const meta = metaOf(scene.id);
         if (phase === "lobby" || phase === "opening" || phase === "hosting" || phase === "joining") {
-          return role === "bubu" ? "Birlikte oynayalım." : "Kodu bekliyorum.";
+          return role === "bubu" ? ui("bubble-play") : ui("bubble-wait");
         }
-        if (phase === "role") return role === "bubu" ? "Beni seç." : "Ya da beni.";
-        if ((phase === "scene" || phase === "outcome") && id && SAY[id]) return SAY[id];
+        if (phase === "role") return role === "bubu" ? ui("bubble-me") : ui("bubble-or");
+        if ((phase === "scene" || phase === "outcome") && id && sayOf(id)) return sayOf(id);
         if (phase === "scene" || phase === "outcome" || phase === "ending") {
           return role === "bubu" ? (meta.bubuSay || "") : (meta.duduSay || "");
         }
         return "";
+      }
+
+      function shown(code) {
+        return ui(code);
+      }
+
+      function applyChrome() {
+        document.documentElement.lang = lang === "de" ? "de" : "tr";
+        els.langSwitch.setAttribute("aria-label", ui("language"));
+        els.langTr.classList.toggle("is-on", lang === "tr");
+        els.langDe.classList.toggle("is-on", lang === "de");
+        els.langTr.setAttribute("aria-pressed", lang === "tr" ? "true" : "false");
+        els.langDe.setAttribute("aria-pressed", lang === "de" ? "true" : "false");
+        els.leadText.textContent = ui("lead");
+        els.codeLabel.textContent = ui("room-code");
+        els.joinBtn.textContent = ui("join");
+        els.hostTitle.textContent = ui("room-ready");
+        els.hostHelp.textContent = ui("share-code");
+        els.hostWait.textContent = ui("waiting-partner");
+        els.joinTitle.textContent = ui("connecting-title");
+        els.joinStatus.textContent = ui("connecting");
+        els.roleTitle.textContent = ui("pick-role-title");
+        els.roleHelp.textContent = ui("two-bears");
+        els.restartBtn.textContent = ui("replay");
+        els.downTitle.textContent = ui("disconnected-title");
+        els.downText.textContent = ui("rejoin");
+        els.downBtn.textContent = ui("new-room");
+        els.loveName.textContent = ui("love");
+        els.chaosName.textContent = ui("chaos");
+        els.loveMeter.setAttribute("aria-label", ui("love"));
+        els.chaosMeter.setAttribute("aria-label", ui("chaos"));
+        if (!copyFlash) els.copyBtn.textContent = ui("copy");
+        els.codeInput.placeholder = lang === "de" ? "6 Ziffern" : "6 hane";
       }
 
       function fxFor(mood, act) {
@@ -1811,6 +2233,7 @@
       }
 
       function render() {
+        applyChrome();
         const phase = state.phase;
         const myRole = roleOf(state, state.seat);
         const scene = SCENES[state.sceneIndex] || SCENES[0];
@@ -1871,15 +2294,15 @@
         const hudOn = phase === "role" || phase === "scene" || phase === "outcome" || phase === "ending";
         show(els.hud, hudOn);
         if (hudOn) {
-          els.hudWho.textContent = myRole ? "Sen " + roleName(myRole) + "'sun" : "Rolünü seç";
-          els.hudRoom.textContent = state.code ? "Oda " + state.code : "";
+          els.hudWho.textContent = myRole ? (lang === "de" ? "Du bist " + roleName(myRole) : "Sen " + roleName(myRole) + "'sun") : ui("hud-pick");
+          els.hudRoom.textContent = state.code ? ui("room") + " " + state.code : "";
           els.loveFill.style.width = clamp(state.love) + "%";
           els.chaosFill.style.width = clamp(state.chaos) + "%";
           els.loveMeter.setAttribute("aria-valuenow", String(clamp(state.love)));
           els.chaosMeter.setAttribute("aria-valuenow", String(clamp(state.chaos)));
           if (state.notice) {
             els.notice.hidden = false;
-            els.notice.textContent = state.notice;
+            els.notice.textContent = shown(state.notice);
           } else {
             els.notice.hidden = true;
             els.notice.textContent = "";
@@ -1894,15 +2317,15 @@
         show(els.panelEnd, phase === "ending");
         show(els.panelDown, phase === "disconnected");
         show(els.leaveBtn, phase === "hosting" || phase === "joining" || phase === "role" || phase === "scene" || phase === "outcome" || phase === "ending");
-        els.leaveBtn.textContent = phase === "hosting" || phase === "joining" ? "Vazgeç" : "Odadan çık";
+        els.leaveBtn.textContent = phase === "hosting" || phase === "joining" ? ui("cancel") : ui("leave");
 
         els.hostBtn.disabled = phase === "opening";
-        els.hostBtn.textContent = phase === "opening" ? "Açılıyor" : "Oda aç";
+        els.hostBtn.textContent = phase === "opening" ? ui("opening") : ui("open");
         els.joinBtn.disabled = phase === "opening";
         els.codeInput.disabled = phase === "opening";
         if (state.error && (phase === "lobby" || phase === "opening")) {
           els.lobbyError.hidden = false;
-          els.lobbyError.textContent = state.error;
+          els.lobbyError.textContent = shown(state.error);
         } else {
           els.lobbyError.hidden = true;
         }
@@ -1912,28 +2335,30 @@
         if (phase === "role") {
           const other = partnerSeat();
           const otherRole = roleOf(state, other);
-          let status = "Partnerin henüz rol seçmedi.";
-          if (otherRole && state.ready[other]) status = roleName(otherRole) + " hazır.";
-          else if (otherRole) status = roleName(otherRole) + " seçildi, henüz hazır değil.";
+          let status = ui("no-role-yet");
+          if (otherRole && state.ready[other]) status = lang === "de" ? roleName(otherRole) + " ist bereit." : roleName(otherRole) + " hazır.";
+          else if (otherRole) status = lang === "de" ? roleName(otherRole) + " ist gewählt, noch nicht bereit." : roleName(otherRole) + " seçildi, henüz hazır değil.";
           els.roleStatus.textContent = status;
           const iReady = !!(state.ready[state.seat] || localReady);
           els.readyBtn.disabled = !myRole || iReady;
-          els.readyBtn.textContent = iReady ? "Hazırsın" : "Hazırım";
+          els.readyBtn.textContent = iReady ? ui("ready-done") : ui("ready");
         }
 
         if (phase === "scene" || phase === "outcome") {
-          const meta = META[scene.id] || {};
-          els.sceneTitle.textContent = scene.title;
+          const meta = metaOf(scene.id);
+          els.sceneTitle.textContent = sceneTitle(scene);
           els.scenePlace.textContent = meta.clock ? meta.clock + "  " + meta.place : "";
-          els.sceneCount.textContent = "Sahne " + (state.sceneIndex + 1) + " / " + SCENES.length;
+          els.sceneCount.textContent = ui("scene") + " " + (state.sceneIndex + 1) + " / " + SCENES.length;
           const chosenId = (myRole && state.picks[myRole]) || localChoice;
           if (phase === "outcome") {
-            els.storyText.textContent = state.outcomeText;
+            const outcomeKey = state.picks.bubu + "|" + state.picks.dudu;
+            const outcomeResult = scene.resolve[outcomeKey];
+            els.storyText.textContent = resultText(scene, outcomeKey, outcomeResult ? outcomeResult.text : state.outcomeText);
             if (state.shift) {
               els.shiftText.hidden = false;
-              if (state.shift.chaos > state.shift.love) els.shiftText.textContent = "Kaos öne geçti.";
-              else if (state.shift.love > state.shift.chaos + 4) els.shiftText.textContent = "Sevgi öne geçti.";
-              else els.shiftText.textContent = "İkisi de kıpırdadı.";
+              if (state.shift.chaos > state.shift.love) els.shiftText.textContent = ui("shift-chaos");
+              else if (state.shift.love > state.shift.chaos + 4) els.shiftText.textContent = ui("shift-love");
+              else els.shiftText.textContent = ui("shift-both");
             } else els.shiftText.hidden = true;
             const bubuLabel = optionLabel(scene, "bubu", state.picks.bubu);
             const duduLabel = optionLabel(scene, "dudu", state.picks.dudu);
@@ -1944,16 +2369,17 @@
             const iCont = !!(state.continues[state.seat] || localCont);
             const otherCont = !!state.continues[partnerSeat()];
             els.continueBtn.disabled = iCont;
-            els.continueBtn.textContent = iCont ? "Bekleniyor" : "Devam";
+            els.continueBtn.textContent = iCont ? ui("waiting") : ui("cont");
             let wait = "";
-            if (iCont && !otherCont) wait = roleName(roleOf(state, partnerSeat())) + " devam etmeyi bekliyor.";
-            else if (!iCont && otherCont) wait = roleName(roleOf(state, partnerSeat())) + " hazır. Devam edebilirsin.";
+            const otherName = roleName(roleOf(state, partnerSeat()));
+            if (iCont && !otherCont) wait = lang === "de" ? otherName + " soll noch auf Weiter tippen." : otherName + " devam etmeyi bekliyor.";
+            else if (!iCont && otherCont) wait = lang === "de" ? otherName + " ist soweit. Du kannst weiter." : otherName + " hazır. Devam edebilirsin.";
             if (wait) {
               els.waitText.hidden = false;
               els.waitText.textContent = wait;
             } else els.waitText.hidden = true;
           } else {
-            els.storyText.textContent = scene.narration;
+            els.storyText.textContent = sceneNarration(scene);
             els.shiftText.hidden = true;
             els.recap.hidden = true;
             show(els.continueBtn, false);
@@ -1968,9 +2394,9 @@
               btn.dataset.id = opt.id;
               const name = document.createElement("span");
               name.className = "choice-label";
-              name.textContent = opt.label;
+              name.textContent = optionLabel(scene, myRole, opt.id);
               btn.appendChild(name);
-              const hint = HINT[myRole + ":" + opt.id];
+              const hint = hintOf(myRole, opt.id);
               if (hint) {
                 const small = document.createElement("small");
                 small.textContent = hint;
@@ -1981,9 +2407,9 @@
             }
             const partnerRole = myRole === "bubu" ? "dudu" : myRole === "dudu" ? "bubu" : null;
             let wait = "";
-            if (!myRole) wait = "Rolün bu sahnede yok.";
-            else if (chosenId && partnerRole && !state.picks[partnerRole]) wait = roleName(partnerRole) + " seçiyor.";
-            else if (!chosenId && partnerRole && state.picks[partnerRole]) wait = roleName(partnerRole) + " seçimini yaptı. Sıra sende.";
+            if (!myRole) wait = ui("no-role-here");
+            else if (chosenId && partnerRole && !state.picks[partnerRole]) wait = lang === "de" ? roleName(partnerRole) + " wählt noch." : roleName(partnerRole) + " seçiyor.";
+            else if (!chosenId && partnerRole && state.picks[partnerRole]) wait = lang === "de" ? roleName(partnerRole) + " ist fertig. Du bist dran." : roleName(partnerRole) + " seçimini yaptı. Sıra sende.";
             if (wait) {
               els.waitText.hidden = false;
               els.waitText.textContent = wait;
@@ -1992,29 +2418,31 @@
         }
 
         if (phase === "ending") {
-          const ending = ENDINGS[state.endingId] || ENDINGS.orta;
+          const ending = endingOf(state.endingId);
           els.endTitle.textContent = ending.title;
           els.endText.textContent = ending.text;
           while (els.dayLog.firstChild) els.dayLog.removeChild(els.dayLog.firstChild);
           const items = state.log || [];
           for (let i = 0; i < items.length; i += 1) {
+            const logged = sceneById(items[i].id);
             const li = document.createElement("li");
-            li.textContent = items[i].t + ": Bubu " + items[i].b + ", Dudu " + items[i].d;
+            if (logged) li.textContent = sceneTitle(logged) + ": Bubu " + optionLabel(logged, "bubu", items[i].b) + ", Dudu " + optionLabel(logged, "dudu", items[i].d);
+            else li.textContent = (items[i].t || "") + ": Bubu " + (items[i].b || "") + ", Dudu " + (items[i].d || "");
             els.dayLog.appendChild(li);
           }
         }
 
         if (phase === "disconnected") {
-          els.downText.textContent = state.error || "Yeni bir oda açıp kodu tekrar paylaşın.";
+          els.downText.textContent = state.error ? shown(state.error) : ui("rejoin");
         }
 
         let liveLine = "";
-        if (phase === "hosting") liveLine = "Oda kodu " + state.code + ". Partner bekleniyor.";
-        else if (phase === "joining") liveLine = "Odaya bağlanılıyor.";
+        if (phase === "hosting") liveLine = ui("live-host") + " " + state.code + ". " + ui("live-wait");
+        else if (phase === "joining") liveLine = ui("connecting");
         else if (phase === "role") liveLine = els.roleStatus.textContent;
-        else if (phase === "scene") liveLine = scene.narration;
-        else if (phase === "outcome") liveLine = state.outcomeText;
-        else if (phase === "ending") liveLine = (ENDINGS[state.endingId] || ENDINGS.orta).text;
+        else if (phase === "scene") liveLine = sceneNarration(scene);
+        else if (phase === "outcome") liveLine = els.storyText.textContent;
+        else if (phase === "ending") liveLine = endingOf(state.endingId).text;
         else if (phase === "disconnected") liveLine = els.downText.textContent;
         else if (state.error) liveLine = state.error;
         say(liveLine);
@@ -2026,7 +2454,7 @@
         const code = els.codeInput.value.replace(/\D/g, "").slice(0, 6);
         els.codeInput.value = code;
         if (!/^\d{6}$/.test(code)) {
-          state.error = "Kod 6 haneli olmalı.";
+          state.error = "code-length";
           render();
           return;
         }
@@ -2037,8 +2465,12 @@
       });
       els.copyBtn.addEventListener("click", function () {
         const done = function (ok) {
-          els.copyBtn.textContent = ok ? "Kopyalandı" : "Kodu elle seç";
-          window.setTimeout(function () { els.copyBtn.textContent = "Kodu kopyala"; }, 1600);
+          copyFlash = true;
+          els.copyBtn.textContent = ok ? ui("copied") : ui("copy-manual");
+          window.setTimeout(function () {
+            copyFlash = false;
+            els.copyBtn.textContent = ui("copy");
+          }, 1600);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(state.code).then(function () { done(true); }).catch(function () { done(false); });
@@ -2059,6 +2491,15 @@
         state = initialState();
         render();
       });
+      els.langTr.addEventListener("click", function () { setLang("tr"); });
+      els.langDe.addEventListener("click", function () { setLang("de"); });
+
+      function setLang(next) {
+        if ((next !== "tr" && next !== "de") || next === lang) return;
+        lang = next;
+        try { localStorage.setItem("bd-lang", lang); } catch (err) { /* storage kapalı */ }
+        render();
+      }
 
       render();
     }());
