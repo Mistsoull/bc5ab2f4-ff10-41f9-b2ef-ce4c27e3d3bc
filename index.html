@@ -579,8 +579,8 @@
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
   <script id="game">
     (function () {
-      const START_LOVE = 46;
-      const START_CHAOS = 12;
+      const START_LOVE = 40;
+      const START_CHAOS = 40;
 
       function R(text, love, chaos) {
         return { text: text, love: love, chaos: chaos };
@@ -603,15 +603,15 @@
             { id: "cik", label: "Tamam, çıkalım" }
           ],
           resolve: {
-            "disari|uyu": R("Bubu kapıda bekliyor. Dudu yorganın içinden beş dakika daha diyor. Pazarlık gülerek uzuyor.", 4, 16),
-            "disari|film": R("Bubu montunu giymiş, Dudu kumandayı uzatıyor. Kapı ile kanepe arasında kalıyorlar.", 8, 8),
-            "disari|cik": R("İkisi de kapıda. Güneş tam isabet, ayakkabılar ilk seferde bulunuyor.", 15, 0),
-            "kahvalti|uyu": R("Bubu mutfakta şarkı söylüyor. Dudu beş dakika diyor, koku onu daha erken kaldırıyor.", 11, 3),
-            "kahvalti|film": R("Kahvaltı tepsisi yatağa geliyor. Film açılıyor, ilk lokma sıcak.", 13, 2),
-            "kahvalti|cik": R("Dudu çıkmaya hazır, Bubu önce midemiz diyor. Parka tok çıkacaklar.", 12, 2),
-            "gidik|uyu": R("Yorgan savaşı başlıyor. Dudu gülüyor, sonra yastığı fırlatıyor.", 9, 10),
-            "gidik|film": R("Gıdıklama fragman oluyor. Filmin ilk sahnesi yarım kalıyor, ikisi de nefes nefese.", 6, 7),
-            "gidik|cik": R("Dudu tam çıkacakken gıdıklanıyor, anahtar yere düşüyor. İkisi de gülüyor.", 12, 5)
+            "disari|uyu": R("Bubu kapıda bekliyor. Dudu yorganın içinden beş dakika daha diyor. Pazarlık gülerek uzuyor.", 2, 14),
+            "disari|film": R("Bubu montunu giymiş, Dudu kumandayı uzatıyor. Kapı ile kanepe arasında kalıyorlar.", 5, 9),
+            "disari|cik": R("İkisi de kapıda. Güneş tam isabet, ayakkabılar ilk seferde bulunuyor.", 14, 1),
+            "kahvalti|uyu": R("Bubu mutfakta şarkı söylüyor. Dudu beş dakika diyor, koku onu daha erken kaldırıyor.", 10, 3),
+            "kahvalti|film": R("Kahvaltı tepsisi yatağa geliyor. Film açılıyor, ilk lokma sıcak.", 14, 1),
+            "kahvalti|cik": R("Dudu çıkmaya hazır, Bubu önce midemiz diyor. Parka tok çıkacaklar.", 6, 7),
+            "gidik|uyu": R("Yorgan savaşı başlıyor. Dudu gülüyor, sonra yastığı fırlatıyor.", 2, 14),
+            "gidik|film": R("Gıdıklama fragman oluyor. Filmin ilk sahnesi yarım kalıyor, ikisi de nefes nefese.", 3, 12),
+            "gidik|cik": R("Dudu tam çıkacakken gıdıklanıyor, anahtar yere düşüyor. İkisi de gülüyor.", 8, 6)
           }
         },
         {
@@ -630,15 +630,15 @@
             { id: "tatli", label: "Tatlı da olsun" }
           ],
           resolve: {
-            "pankek|tost": R("Tabakta pankek, köşede tost. Ortadan kesip paylaşıyorlar.", 9, 6),
-            "pankek|yardim": R("Dudu çırparken un uçuyor. Bubu'nun yanağında beyaz bir leke kalıyor.", 12, 5),
-            "pankek|tatli": R("Çilek, bal ve iki çatal. Tabak bitince ikisi de susmuyor, gülümsüyor.", 15, 1),
-            "birlikte|tost": R("Birlikte sade tost. Sessiz, sıcak, tam Dudu'nun temposu.", 13, 1),
-            "birlikte|yardim": R("Dört el, bir mutfak. Biri yağ sürüyor, biri çayı demliyor.", 16, 1),
-            "birlikte|tatli": R("Birlikte yaptıkları pankekin üstüne reçel iniyor. Kaşık kavgası tatlı bitiyor.", 15, 2),
-            "surpriz|tost": R("Bubu gözleri kapat diyor. Dudu tost beklerken pankekle karşılaşıyor.", 4, 15),
-            "surpriz|yardim": R("Sürpriz, Dudu mutfağa girince bozuluyor. Kalanını birlikte bitiriyorlar.", 5, 8),
-            "surpriz|tatli": R("Sürpriz tam isabet. Tatlı tabak, Dudu'nun beklediği şeymiş.", 16, 1)
+            "pankek|tost": R("Tabakta pankek, köşede tost. Ortadan kesip paylaşıyorlar.", 4, 10),
+            "pankek|yardim": R("Dudu çırparken un uçuyor. Bubu'nun yanağında beyaz bir leke kalıyor.", 8, 6),
+            "pankek|tatli": R("Çilek, bal ve iki çatal. Tabak bitince ikisi de susmuyor, gülümsüyor.", 14, 1),
+            "birlikte|tost": R("Birlikte sade tost. Sessiz, sıcak, tam Dudu'nun temposu.", 14, 1),
+            "birlikte|yardim": R("Dört el, bir mutfak. Biri yağ sürüyor, biri çayı demliyor.", 14, 1),
+            "birlikte|tatli": R("Birlikte yaptıkları pankekin üstüne reçel iniyor. Kaşık kavgası tatlı bitiyor.", 11, 4),
+            "surpriz|tost": R("Bubu gözleri kapat diyor. Dudu tost beklerken pankekle karşılaşıyor.", 2, 14),
+            "surpriz|yardim": R("Sürpriz, Dudu mutfağa girince bozuluyor. Kalanını birlikte bitiriyorlar.", 4, 10),
+            "surpriz|tatli": R("Sürpriz tam isabet. Tatlı tabak, Dudu'nun beklediği şeymiş.", 14, 1)
           }
         },
         {
@@ -657,15 +657,15 @@
             { id: "tur", label: "Kısa bir tur olur" }
           ],
           resolve: {
-            "park|park": R("Aynı bank, iki dondurma. Konuşmadan da iyi geliyor.", 16, 0),
-            "park|ev": R("Bubu ayakkabıyı giymiş, Dudu terlikte. Kapıda yarım saatlik park pazarlığı.", 8, 9),
+            "park|park": R("Aynı bank, iki dondurma. Konuşmadan da iyi geliyor.", 14, 1),
+            "park|ev": R("Bubu ayakkabıyı giymiş, Dudu terlikte. Kapıda yarım saatlik park pazarlığı.", 3, 13),
             "park|tur": R("Parka kadar yürüyüp aynı yoldan dönüyorlar. Kısa ve tam kararında.", 12, 2),
-            "alisveris|park": R("Bubu vitrini, Dudu ağacı gösteriyor. Önce park, dönüşte tek bir dükkân.", 9, 7),
-            "alisveris|ev": R("Poşet hayali battaniyeye yeniliyor. Bubu siparişi erteleyip kanepeye düşüyor.", 3, 16),
-            "alisveris|tur": R("Kısa tur bir vitrinde uzuyor. Dudu yorulunca ilk bank onların oluyor.", 11, 4),
-            "ev|park": R("Dudu dışarı hazır, Bubu oyunu açmış. Pencere açık, ikisi de yarı dışarıda.", 8, 8),
-            "ev|ev": R("İkisi de evde. Çay, kutu oyun, kimse saate bakmıyor.", 15, 1),
-            "ev|tur": R("Dudu kısa tur diyor, Bubu on beş dakika diye pazarlık ediyor. Tur on beş dakikayı aşıyor.", 4, 8)
+            "alisveris|park": R("Bubu vitrini, Dudu ağacı gösteriyor. Önce park, dönüşte tek bir dükkân.", 6, 7),
+            "alisveris|ev": R("Poşet hayali battaniyeye yeniliyor. Bubu siparişi erteleyip kanepeye düşüyor.", 2, 14),
+            "alisveris|tur": R("Kısa tur bir vitrinde uzuyor. Dudu yorulunca ilk bank onların oluyor.", 7, 6),
+            "ev|park": R("Dudu dışarı hazır, Bubu oyunu açmış. Pencere açık, ikisi de yarı dışarıda.", 3, 12),
+            "ev|ev": R("İkisi de evde. Çay, kutu oyun, kimse saate bakmıyor.", 14, 1),
+            "ev|tur": R("Dudu kısa tur diyor, Bubu on beş dakika diye pazarlık ediyor. Tur on beş dakikayı aşıyor.", 4, 11)
           }
         },
         {
@@ -684,15 +684,15 @@
             { id: "konus", label: "Konuşalım" }
           ],
           resolve: {
-            "saka|kirildim": R("Şakanın üstüne bir şaka daha geliyor. Oda bir anda serinliyor.", 2, 18),
-            "saka|komik": R("Dudu gecikmeli gülüyor. Bir daha sormadan olmaz, diyor.", 10, 7),
-            "saka|konus": R("Oturup konuşuyorlar. Şaka açıklığa kavuşunca omuzlar iniyor.", 12, 4),
-            "ozur|kirildim": R("Özür duyuluyor ama Dudu biraz süre istiyor. Yan yana, sessiz.", 9, 6),
-            "ozur|komik": R("Dudu özür gerekmez diyor. Bubu yine de sarılıyor.", 14, 2),
-            "ozur|konus": R("Sakin bir konuşma. İkisi de neye takıldığını adıyla söylüyor.", 16, -4),
-            "saril|kirildim": R("Sarılma biraz erken. Dudu önce kasılıyor, sonra yavaşça yumuşuyor.", 4, 9),
-            "saril|komik": R("Sarılma kahkahayla açılıyor. Fotoğraf yeniden komik hale geliyor.", 14, 3),
-            "saril|konus": R("Önce kısa bir sarılma, sonra iki cümlelik dürüst bir konuşma.", 15, 2)
+            "saka|kirildim": R("Şakanın üstüne bir şaka daha geliyor. Oda bir anda serinliyor.", 1, 16),
+            "saka|komik": R("Dudu gecikmeli gülüyor. Bir daha sormadan olmaz, diyor.", 7, 7),
+            "saka|konus": R("Oturup konuşuyorlar. Şaka açıklığa kavuşunca omuzlar iniyor.", 11, 3),
+            "ozur|kirildim": R("Özür duyuluyor ama Dudu biraz süre istiyor. Yan yana, sessiz.", 5, 9),
+            "ozur|komik": R("Dudu özür gerekmez diyor. Bubu yine de sarılıyor.", 13, 2),
+            "ozur|konus": R("Sakin bir konuşma. İkisi de neye takıldığını adıyla söylüyor.", 14, 0),
+            "saril|kirildim": R("Sarılma biraz erken. Dudu önce kasılıyor, sonra yavaşça yumuşuyor.", 3, 12),
+            "saril|komik": R("Sarılma kahkahayla açılıyor. Fotoğraf yeniden komik hale geliyor.", 10, 4),
+            "saril|konus": R("Önce kısa bir sarılma, sonra iki cümlelik dürüst bir konuşma.", 13, 2)
           }
         },
         {
@@ -711,15 +711,15 @@
             { id: "cay", label: "Çay demleyeyim" }
           ],
           resolve: {
-            "film|film": R("Aynı film, tek battaniye. Jenerik bitmeden biri uyukluyor.", 16, 0),
-            "film|yuruyus": R("Bubu kanepeyi, Dudu kapıyı gösteriyor. Film sözü yürüyüşten sonraya kalıyor.", 4, 14),
-            "film|cay": R("Film başlıyor, çay yanına yetişiyor. Buhar ekrana karışıyor.", 15, 1),
-            "yuruyus|film": R("Dudu film istiyor, Bubu sokağı. Mahallede bir tur, sonra aynı kanepe.", 4, 8),
-            "yuruyus|yuruyus": R("Lamba altında yürüyorlar. Konuşma seyrek, adımlar denk.", 16, 1),
-            "yuruyus|cay": R("Dudu çayı termosa koyuyor. Yürüyüş, sıcak bardakla tamamlanıyor.", 14, 2),
-            "battaniye|film": R("Battaniye kale oluyor, film sesi dışarıdan geliyor. İkisi de içeride.", 15, 1),
-            "battaniye|yuruyus": R("Bubu kaleden çıkmak istemiyor. Dudu pencereyi açınca gece içeri giriyor.", 6, 10),
-            "battaniye|cay": R("Çay, battaniye, omuz omuza. Gün başka bir plana ihtiyaç duymuyor.", 16, 0)
+            "film|film": R("Aynı film, tek battaniye. Jenerik bitmeden biri uyukluyor.", 14, 1),
+            "film|yuruyus": R("Bubu kanepeyi, Dudu kapıyı gösteriyor. Film sözü yürüyüşten sonraya kalıyor.", 2, 14),
+            "film|cay": R("Film başlıyor, çay yanına yetişiyor. Buhar ekrana karışıyor.", 14, 1),
+            "yuruyus|film": R("Dudu film istiyor, Bubu sokağı. Mahallede bir tur, sonra aynı kanepe.", 4, 10),
+            "yuruyus|yuruyus": R("Lamba altında yürüyorlar. Konuşma seyrek, adımlar denk.", 14, 1),
+            "yuruyus|cay": R("Dudu çayı termosa koyuyor. Yürüyüş, sıcak bardakla tamamlanıyor.", 12, 3),
+            "battaniye|film": R("Battaniye kale oluyor, film sesi dışarıdan geliyor. İkisi de içeride.", 13, 2),
+            "battaniye|yuruyus": R("Bubu kaleden çıkmak istemiyor. Dudu pencereyi açınca gece içeri giriyor.", 3, 13),
+            "battaniye|cay": R("Çay, battaniye, omuz omuza. Gün başka bir plana ihtiyaç duymuyor.", 14, 1)
           }
         }
       ];
@@ -747,8 +747,8 @@
       }
 
       function pickEnding(love, chaos) {
-        if (chaos >= 55 && chaos >= love - 15) return "kaos";
-        if (love >= 78 && love >= chaos + 25) return "uyumlu";
+        if (chaos > love) return "kaos";
+        if (love >= chaos + 12) return "uyumlu";
         return "orta";
       }
 
