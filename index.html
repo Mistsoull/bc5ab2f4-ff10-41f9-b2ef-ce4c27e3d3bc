@@ -146,9 +146,57 @@
     .hill.far { fill: #8fce7a; }
     .hill.near { fill: #67a85e; }
 
+    .fx {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .fx i {
+      position: absolute;
+      top: -14%;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    .fx[data-kind="motes"] i,
+    .fx[data-kind="hearts"] i,
+    .fx[data-kind="stars"] i,
+    .fx[data-kind="steam"] i { border-radius: 50%; }
+
+    .fx[data-kind="motes"] i { width: 7px; height: 7px; background: rgba(255, 255, 255, 0.85); animation-name: fall; }
+    .fx[data-kind="hearts"] i { width: 9px; height: 9px; background: #ff6b3d; animation-name: rise; }
+    .fx[data-kind="leaves"] i { width: 9px; height: 6px; background: #3f8a52; border-radius: 40% 0; animation-name: fall; }
+    .fx[data-kind="rain"] i { width: 2px; height: 18px; background: rgba(255, 255, 255, 0.8); border-radius: 2px; animation-name: fall; }
+    .fx[data-kind="steam"] i { width: 16px; height: 16px; background: rgba(255, 255, 255, 0.55); animation-name: rise; }
+    .fx[data-kind="stars"] i { width: 4px; height: 4px; background: #fff; animation-name: twinkle; }
+
+    .bubble {
+      position: absolute;
+      z-index: 6;
+      max-width: 46%;
+      margin: 0;
+      padding: 6px 8px;
+      background: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 14px 14px 14px 4px;
+      font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.15;
+      animation: pop 0.28s ease;
+    }
+
+    .bubble:empty { display: none; }
+    .bubble.bubu { left: 10px; bottom: 176px; }
+    .bubble.dudu { right: 10px; bottom: 158px; border-radius: 14px 14px 4px 14px; }
+    body.playing .bubble.bubu { bottom: 132px; }
+    body.playing .bubble.dudu { bottom: 118px; }
+
     .cast {
       position: absolute;
-      z-index: 3;
+      z-index: 4;
       left: 0;
       right: 0;
       bottom: 34px;
@@ -213,7 +261,52 @@
 
     .bear.is-taken { opacity: 0.55; }
 
-    .bear.hop svg { animation: hop 520ms ease; }
+    .bear[data-pose="jump"] svg { animation: jump 0.7s ease-in-out infinite; }
+    .bear[data-pose="sleep"] svg { animation: snooze 2.2s ease-in-out infinite; }
+    .bear[data-pose="walk"] svg { animation: stride 0.55s ease-in-out infinite; }
+    .bear[data-pose="laugh"] svg { animation: giggle 0.32s ease-in-out infinite; }
+    .bear[data-pose="shy"] svg { animation: shy 1.5s ease-in-out infinite; }
+    .bear[data-pose="eat"] svg,
+    .bear[data-pose="talk"] svg { animation: nod 0.8s ease-in-out infinite; }
+    .bear[data-pose="cook"] svg { animation: stir 0.45s ease-in-out infinite; }
+    .bear[data-pose="sit"] svg { animation: settle 1.8s ease-in-out infinite; }
+    .bear[data-pose="dance"] svg { animation: dance 0.65s ease-in-out infinite; }
+    .bear[data-pose="storm"] svg { animation: shake 0.22s linear infinite; }
+    .bear[data-pose="hug"] svg { animation: lean 0.8s ease-in-out infinite; }
+    .cast[data-act="hug"] .bear.bubu { animation: meet-right 0.55s ease forwards; }
+    .cast[data-act="hug"] .bear.dudu { animation: meet-left 0.55s ease forwards; }
+
+    .eye {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: blink 4.8s infinite;
+    }
+
+    .bear.dudu .eye { animation-delay: -1.6s; }
+
+    .choice {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 2px;
+      animation: rise-in 0.35s ease both;
+    }
+
+    .choice:nth-child(2) { animation-delay: 0.06s; }
+    .choice:nth-child(3) { animation-delay: 0.12s; }
+
+    .choice small {
+      font-family: Literata, Georgia, serif;
+      font-size: 0.92rem;
+      font-weight: 480;
+      line-height: 1.3;
+    }
+
+    .log { margin: 0 0 12px; padding-left: 1.1rem; }
+    .log li { margin: 0 0 6px; }
+
+    .world.enter { animation: scene-in 0.45s ease; }
 
     .sheet {
       position: relative;
@@ -404,6 +497,23 @@
     .world[data-mood="night"] .sun { background: #f4f7fb; width: 36px; height: 36px; }
     .world[data-mood="night"] .clouds { opacity: 0.35; }
 
+    body[data-mood="room"], .world[data-mood="room"] { background: #f2c9a0; }
+    .world[data-mood="room"] { background: linear-gradient(#f6d7b0, #e7b089); }
+    .world[data-mood="room"] .hill.far { fill: #d7a06a; }
+    .world[data-mood="room"] .hill.near { fill: #c48455; }
+    .world[data-mood="room"] .sun { background: #fff1c9; }
+
+    body[data-mood="street"] { background: #7ec8ea; }
+    .world[data-mood="street"] { background: linear-gradient(#8fd0ef, #f2d48a); }
+    .world[data-mood="street"] .hill.far { fill: #8fb56a; }
+    .world[data-mood="street"] .hill.near { fill: #5c8f55; }
+
+    body[data-mood="supper"] { background: #e28b62; }
+    .world[data-mood="supper"] { background: linear-gradient(#f0a36a, #6d3b4a); }
+    .world[data-mood="supper"] .hill.far { fill: #c46b4a; }
+    .world[data-mood="supper"] .hill.near { fill: #4a2c38; }
+    .world[data-mood="supper"] .sun { top: auto; bottom: 72px; background: #ffd0a1; }
+
     @keyframes drift {
       from { transform: translateX(0); }
       to { transform: translateX(-50%); }
@@ -420,6 +530,94 @@
       100% { transform: translateY(0); }
     }
 
+    @keyframes jump {
+      0%, 100% { transform: translateY(0) scale(1); }
+      45% { transform: translateY(-26px) scale(1.05); }
+    }
+
+    @keyframes snooze {
+      0%, 100% { transform: translateY(10px) rotate(-8deg); }
+      50% { transform: translateY(14px) rotate(-3deg); }
+    }
+
+    @keyframes stride {
+      0%, 100% { transform: translateX(-10px) rotate(-6deg); }
+      50% { transform: translateX(10px) rotate(6deg); }
+    }
+
+    @keyframes giggle {
+      0%, 100% { transform: rotate(-8deg); }
+      50% { transform: rotate(8deg) translateY(-6px); }
+    }
+
+    @keyframes shy {
+      0%, 100% { transform: translateX(0) scale(1); }
+      50% { transform: translateX(-12px) scale(0.92); }
+    }
+
+    @keyframes nod {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      50% { transform: translateY(7px) rotate(4deg); }
+    }
+
+    @keyframes stir {
+      0%, 100% { transform: rotate(-10deg); }
+      50% { transform: rotate(12deg) translateY(-4px); }
+    }
+
+    @keyframes settle {
+      0%, 100% { transform: translateY(6px) scale(1, 0.96); }
+      50% { transform: translateY(8px) scale(1.02, 0.94); }
+    }
+
+    @keyframes dance {
+      0% { transform: translateY(0) rotate(-10deg); }
+      50% { transform: translateY(-18px) rotate(10deg); }
+      100% { transform: translateY(0) rotate(-10deg); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-7px) rotate(-3deg); }
+      75% { transform: translateX(7px) rotate(3deg); }
+    }
+
+    @keyframes lean {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes meet-right { to { transform: translateX(26px); } }
+    @keyframes meet-left { to { transform: translateX(-26px); } }
+
+    @keyframes blink {
+      0%, 88%, 100% { transform: scaleY(1); }
+      93% { transform: scaleY(0.12); }
+    }
+
+    @keyframes fall { to { transform: translateY(140vh) rotate(80deg); } }
+    @keyframes rise { from { transform: translateY(46vh); } to { transform: translateY(-12vh); } }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.25; transform: translateY(30vh); }
+      50% { opacity: 1; transform: translateY(18vh); }
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes rise-in {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: none; opacity: 1; }
+    }
+
+    @keyframes scene-in {
+      from { transform: translateY(10px); }
+      to { transform: none; }
+    }
+
     @media (max-height: 700px) {
       .world { min-height: 210px; }
       .bear svg { width: 96px; height: 114px; }
@@ -427,7 +625,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .clouds, .bear svg { animation: none; }
+      .clouds, .bear svg, .fx i, .bubble, .choice, .world.enter,
+      .cast[data-act="hug"] .bear, .eye { animation: none; }
       .track div { transition: none; }
     }
 
@@ -441,6 +640,7 @@
     <div class="world" id="world" data-mood="morning">
       <div class="sun" aria-hidden="true"></div>
       <div class="clouds" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="fx" id="fx" data-kind="motes" aria-hidden="true"></div>
       <div class="titleblock" id="titleblock">
         <h1>Bubu & Dudu</h1>
       </div>
@@ -456,8 +656,8 @@
             <circle cx="60" cy="58" r="36" fill="#fff"></circle>
             <ellipse cx="46" cy="56" rx="13" ry="15" fill="#16343c"></ellipse>
             <ellipse cx="74" cy="56" rx="13" ry="15" fill="#16343c"></ellipse>
-            <circle cx="48" cy="54" r="4" fill="#fff"></circle>
-            <circle cx="76" cy="54" r="4" fill="#fff"></circle>
+            <circle class="eye" cx="48" cy="54" r="4" fill="#fff"></circle>
+            <circle class="eye" cx="76" cy="54" r="4" fill="#fff"></circle>
             <ellipse cx="34" cy="70" rx="7" ry="4" fill="#ffb5a3"></ellipse>
             <ellipse cx="86" cy="70" rx="7" ry="4" fill="#ffb5a3"></ellipse>
             <ellipse cx="60" cy="70" rx="6" ry="4.5" fill="#16343c"></ellipse>
@@ -477,8 +677,8 @@
             <circle cx="60" cy="58" r="36" fill="#d3924a"></circle>
             <ellipse cx="60" cy="70" rx="18" ry="14" fill="#f3d7b0"></ellipse>
             <ellipse cx="60" cy="68" rx="6" ry="4.5" fill="#16343c"></ellipse>
-            <path d="M42 56 Q48 52 54 56" fill="none" stroke="#16343c" stroke-width="3" stroke-linecap="round"></path>
-            <path d="M66 56 Q72 52 78 56" fill="none" stroke="#16343c" stroke-width="3" stroke-linecap="round"></path>
+            <path class="eye" d="M42 56 Q48 52 54 56" fill="none" stroke="#16343c" stroke-width="3" stroke-linecap="round"></path>
+            <path class="eye" d="M66 56 Q72 52 78 56" fill="none" stroke="#16343c" stroke-width="3" stroke-linecap="round"></path>
             <ellipse cx="38" cy="72" rx="6" ry="3.5" fill="#e7a684"></ellipse>
             <ellipse cx="82" cy="72" rx="6" ry="3.5" fill="#e7a684"></ellipse>
             <path d="M52 80 Q60 86 68 80" fill="none" stroke="#16343c" stroke-width="2.5" stroke-linecap="round"></path>
@@ -490,6 +690,8 @@
           <span>Dudu</span>
         </button>
       </div>
+      <p class="bubble bubu" id="bubbleBubu"></p>
+      <p class="bubble dudu" id="bubbleDudu"></p>
     </div>
 
     <main class="sheet" id="sheet">
@@ -516,7 +718,7 @@
       </div>
 
       <section id="panelLobby">
-        <p class="lead">Aynı cumartesiyi iki telefondan oynayın.</p>
+        <p class="lead">Aynı cumartesiyi iki telefondan oynayın. Sekiz sahne, ortak bir gün.</p>
         <button type="button" class="go" id="hostBtn">Oda aç</button>
         <form id="joinForm">
           <label for="codeInput">Oda kodu</label>
@@ -550,8 +752,10 @@
 
       <section id="panelPlay" hidden>
         <h2 id="sceneTitle"></h2>
+        <p id="scenePlace" class="count"></p>
         <p id="sceneCount" class="count"></p>
         <p id="storyText" class="story"></p>
+        <p id="shiftText" class="count" hidden></p>
         <p id="recap" class="recap" hidden></p>
         <p id="waitText" class="wait" hidden></p>
         <div id="choices" class="choices"></div>
@@ -561,6 +765,7 @@
       <section id="panelEnd" hidden>
         <h2 id="endTitle"></h2>
         <p id="endText" class="story"></p>
+        <ol id="dayLog" class="log"></ol>
         <button type="button" class="go" id="restartBtn">Günü yeniden oyna</button>
       </section>
 
@@ -591,7 +796,7 @@
           id: "morning",
           title: "Cumartesi sabahı",
           mood: "morning",
-          narration: "Perdeler aralık. Bubu çoktan uyanmış, Dudu yorganın içinde kaybolmuş.",
+          narration: "Perdeler aralık. Bubu çoktan uyanmış, Dudu yorganın içinde kaybolmuş. Bu ilk karar, günün temposunu kuruyor.",
           bubu: [
             { id: "disari", label: "Hadi dışarı çıkalım" },
             { id: "kahvalti", label: "Önce kahvaltı" },
@@ -618,7 +823,7 @@
           id: "breakfast",
           title: "Kahvaltı",
           mood: "kitchen",
-          narration: "Mutfak hâlâ sıcak. Bugünün ilk ortak kararı tabakta.",
+          narration: "Mutfak hâlâ sıcak. Bugünün ilk ortak kararı tabakta: tatlı mı, sade mi, yoksa sürpriz mi?",
           bubu: [
             { id: "pankek", label: "Pankek ve çilek" },
             { id: "birlikte", label: "Birlikte yapalım" },
@@ -642,10 +847,37 @@
           }
         },
         {
+          id: "ready",
+          title: "Hazırlanma",
+          mood: "room",
+          narration: "Ayna dolabın kapağında. Bubu çoktan bir şey seçmiş, Dudu hâlâ askıda duran monta bakıyor. Dışarı çıkılacaksa kıyafet de bir anlaşma.",
+          bubu: [
+            { id: "sapka", label: "Şapka takalım" },
+            { id: "esofman", label: "Eşofman yeter" },
+            { id: "uyum", label: "Sana uyayım" }
+          ],
+          dudu: [
+            { id: "mont", label: "Montumu giyerim" },
+            { id: "evkiyafet", label: "Ev kıyafeti kalsın" },
+            { id: "renk", label: "Aynı renk olsun" }
+          ],
+          resolve: {
+            "sapka|mont": R("Şapka ve mont aynı kapıda buluşuyor. İkisi de dışarıya göre giyinmiş.", 14, 1),
+            "sapka|evkiyafet": R("Bubu şapkayı uzatıyor, Dudu terlikle duruyor. Ayna kararsız bir çift gösteriyor.", 3, 13),
+            "sapka|renk": R("Şapkanın rengi Dudu'nun tişörtüne denk geliyor. Küçük bir zafer.", 8, 6),
+            "esofman|mont": R("Eşofman ile mont aynı cümlede durmuyor. Biri park, biri rüzgâr demiş gibi.", 2, 14),
+            "esofman|evkiyafet": R("İkisi de evde kalacak gibi giyiniyor. Kanepe bu kararı duyunca rahatlıyor.", 13, 2),
+            "esofman|renk": R("Eşofman gri, Dudu da gri bir üst çıkarıyor. Uyum var, heyecan az.", 6, 8),
+            "uyum|mont": R("Bubu, Dudu'nun montuna bakıp kendi ceketini alıyor. Ayna gülümsüyor.", 12, 2),
+            "uyum|evkiyafet": R("Bubu uymak istiyor, Dudu evde kalmak. İkisi de bir adım geri çekiliyor.", 7, 6),
+            "uyum|renk": R("Aynı renk, aynı tempo. Kapının önünde birbirlerine bakıp başlarını sallıyorlar.", 14, 1)
+          }
+        },
+        {
           id: "afternoon",
           title: "Öğleden sonra",
           mood: "park",
-          narration: "Öğlen oldu. Dışarıda güneş var, içeride kanepe de ısrar ediyor.",
+          narration: "Öğlen oldu. Dışarıda güneş var, içeride kanepe de ısrar ediyor. Plan, ikinizin adımının denk gelmesine kalmış.",
           bubu: [
             { id: "park", label: "Parka gidelim" },
             { id: "alisveris", label: "Alışverişe çıkalım" },
@@ -669,10 +901,37 @@
           }
         },
         {
+          id: "stop",
+          title: "Küçük mola",
+          mood: "street",
+          narration: "Yolun ortasında bir dondurmacı, bir bank ve Dudu'nun hep durduğu gölge var. Biri hızlanmak, biri nefes almak istiyor.",
+          bubu: [
+            { id: "dondurma", label: "Dondurma alalım" },
+            { id: "foto", label: "Fotoğraf çekelim" },
+            { id: "bank", label: "Şu banka oturalım" }
+          ],
+          dudu: [
+            { id: "dondurma", label: "Dondurma iyi" },
+            { id: "cek", label: "Sen çek, ben bakayım" },
+            { id: "golge", label: "Gölgede duralım" }
+          ],
+          resolve: {
+            "dondurma|dondurma": R("İki külah, aynı tezgâh. Erimeden önce paylaşılan bir lokma bile var.", 14, 1),
+            "dondurma|cek": R("Bubu dondurmayı, Dudu kamerayı gösteriyor. Önce bir kare, sonra külah.", 8, 5),
+            "dondurma|golge": R("Külah güneşte, Dudu gölgede. Bubu iki adım geri gelip gölgeye sığınıyor.", 5, 9),
+            "foto|dondurma": R("Bubu pozu kuruyor, Dudu çoktan dondurma sırasına girmiş. Fotoğraf eriyen bir külahla çekiliyor.", 6, 7),
+            "foto|cek": R("Dudu kamerayı Bubu'ya bırakıyor, kendisi kenarda gülümsüyor. Kare ikisini de alıyor.", 14, 1),
+            "foto|golge": R("Bubu ışığı, Dudu gölgeyi seçiyor. Fotoğraf yarım kalıyor, kahkaha tam.", 4, 10),
+            "bank|dondurma": R("Bubu bankı gösteriyor, Dudu elinde külahla geliyor. Oturuş, tatlı bir gecikmeyle oluyor.", 5, 8),
+            "bank|cek": R("Bankta bir kare. Dudu objektifin dışında kalmak istiyor, Bubu onu kadraja çekiyor.", 7, 6),
+            "bank|golge": R("Gölgedeki bank ikisinin de istediği yer. Bir süre kimse saatine bakmıyor.", 13, 2)
+          }
+        },
+        {
           id: "crisis",
           title: "Küçük bir kırılma",
           mood: "crisis",
-          narration: "Bubu, Dudu'nun eski bir fotoğrafına takılıyor. Şaka büyük, Dudu'nun susması daha büyük.",
+          narration: "Bubu, Dudu'nun eski bir fotoğrafına takılıyor. Şaka büyük, Dudu'nun susması daha büyük. Şimdi ya açıklanacak ya da üstüne binecek.",
           bubu: [
             { id: "saka", label: "Şaka yapıyordum" },
             { id: "ozur", label: "Özür dilerim" },
@@ -696,10 +955,37 @@
           }
         },
         {
+          id: "dinner",
+          title: "Akşam yemeği",
+          mood: "supper",
+          narration: "Mutfak yeniden yanıyor, bu sefer akşam için. Biri tencere, biri kapı, biri telefon menüsü istiyor. Sofranın şekli seçimle kurulacak.",
+          bubu: [
+            { id: "makarna", label: "Makarna yapalım" },
+            { id: "disariye", label: "Dışarıda yiyelim" },
+            { id: "siparis", label: "Sipariş edelim" }
+          ],
+          dudu: [
+            { id: "corba", label: "Çorba yeter" },
+            { id: "evyemegi", label: "Ev yemeği olsun" },
+            { id: "tabak", label: "Aynı tabaktan yiyelim" }
+          ],
+          resolve: {
+            "makarna|corba": R("Tencerede makarna, kenarda çorba. İkisi de kendi kaşığını koyuyor, sonra tadıyor.", 6, 7),
+            "makarna|evyemegi": R("Ev yemeği makarna oluyor. Un yine havada, bu sefer ikisi de gülüyor.", 10, 3),
+            "makarna|tabak": R("Tek tabak, iki çatal. Makarna ortadan bölünüyor.", 12, 2),
+            "disariye|corba": R("Bubu ayakkabıyı giymiş, Dudu tencerenin kapağını açmış. Kapı ile ocak karşı karşıya.", 2, 14),
+            "disariye|evyemegi": R("Dışarı planı ev yemeğine çarpıyor. Menü tartışması mutfakta bitiyor.", 3, 13),
+            "disariye|tabak": R("Dudu paylaşmak istiyor, Bubu sokak istiyor. Sokak lokantasında tek tabak buluyorlar.", 5, 9),
+            "siparis|corba": R("Sipariş gecikiyor, Dudu çorbayı çoktan koymuş. Kapı çalınca iki yemek birden oluyor.", 4, 11),
+            "siparis|evyemegi": R("Bubu telefonu açıyor, Dudu ocağı. Biri iptal ediyor, biri tencereyi kapatıyor. Sonra birlikte karar veriyorlar.", 7, 7),
+            "siparis|tabak": R("Gelen kutu tek tabağa boşalıyor. Ekran kenara, kaşıklar ortaya.", 14, 1)
+          }
+        },
+        {
           id: "evening",
           title: "Akşam",
           mood: "dusk",
-          narration: "Gün yavaşlıyor. Işık turuncuya çekiliyor. Bu akşamı nasıl kapattığınız kalıyor.",
+          narration: "Gün yavaşlıyor. Işık turuncuya çekiliyor. Bu akşamı nasıl kapattığınız, bütün cumartesiyi bir cümleye bağlıyor.",
           bubu: [
             { id: "film", label: "Film gecesi" },
             { id: "yuruyus", label: "Yürüyüşe çıkalım" },
@@ -752,6 +1038,102 @@
         return "orta";
       }
 
+      function actFor(result) {
+        if (result.chaos >= result.love + 6) return "storm";
+        if (result.love >= result.chaos + 8) return "hug";
+        if (result.love >= 8 && result.chaos >= 6) return "dance";
+        return "laugh";
+      }
+
+      const META = {
+        morning: { clock: "08:10", place: "Yatak odası", bubuSay: "Gün başladı!", duduSay: "Beş dakika..." },
+        breakfast: { clock: "09:00", place: "Mutfak", bubuSay: "Acıktım!", duduSay: "Çay koyalım." },
+        ready: { clock: "10:40", place: "Ayna", bubuSay: "Buna ne dersin?", duduSay: "Acele etme." },
+        afternoon: { clock: "13:20", place: "Kapı", bubuSay: "Hadi çıkalım.", duduSay: "Plan net mi?" },
+        stop: { clock: "15:05", place: "Sokak", bubuSay: "Şurada duralım!", duduSay: "Gölge iyi." },
+        crisis: { clock: "17:10", place: "Salon", bubuSay: "Şaka sandım...", duduSay: "Bir dakika." },
+        dinner: { clock: "19:00", place: "Sofra", bubuSay: "Ne yiyeceğiz?", duduSay: "Sakin bir şey." },
+        evening: { clock: "21:30", place: "Pencere", bubuSay: "Gün bitsin mi?", duduSay: "Yan yana." }
+      };
+
+      const POSE = {
+        disari: "jump", uyu: "sleep", film: "sit", cik: "walk", kahvalti: "eat", gidik: "laugh",
+        pankek: "eat", birlikte: "cook", surpriz: "jump", tost: "eat", yardim: "cook", tatli: "eat",
+        park: "walk", alisveris: "jump", ev: "sit", tur: "walk",
+        saka: "laugh", ozur: "shy", saril: "hug", kirildim: "shy", komik: "laugh", konus: "talk",
+        yuruyus: "walk", battaniye: "hug", cay: "eat",
+        sapka: "jump", esofman: "sit", uyum: "hug", mont: "walk", evkiyafet: "sit", renk: "dance",
+        dondurma: "eat", foto: "jump", bank: "sit", cek: "shy", golge: "sit",
+        makarna: "cook", disariye: "walk", siparis: "jump", corba: "eat", evyemegi: "cook", tabak: "hug"
+      };
+
+      const SAY = {
+        disari: "Dışarı!", uyu: "Biraz daha...", film: "Film açayım.", cik: "Tamam, geliyorum.",
+        kahvalti: "Önce karın.", gidik: "Yakalandın!", pankek: "Çilekli olsun!",
+        birlikte: "Beraber.", surpriz: "Gözlerini kapat.", tost: "Sade yeter.",
+        yardim: "Ben de varım.", tatli: "Reçel de koy.", park: "Parka!",
+        alisveris: "Vitrinlere!", ev: "Evde kalalım.", tur: "Kısa bir tur.",
+        saka: "Şakaydı!", ozur: "Özür dilerim.", saril: "Gel.", kirildim: "Kırıldım.",
+        komik: "Güleyim bari.", konus: "Konuşalım.", yuruyus: "Yürüyelim.",
+        battaniye: "Battaniye.", cay: "Çay demlendi.", sapka: "Şapka!",
+        esofman: "Böyle rahat.", uyum: "Sana uyarım.", mont: "Montum hazır.",
+        evkiyafet: "Evdeyim ben.", renk: "Aynı renk.", dondurma: "Külah!",
+        foto: "Gülümse.", bank: "Oturak mı?", cek: "Sen çek.", golge: "Gölge iyi.",
+        makarna: "Tencere kaynadı.", disariye: "Sokakta yiyelim.", siparis: "Sipariş gitti.",
+        corba: "Çorba sıcak.", evyemegi: "Ev yemeği.", tabak: "Aynı tabak."
+      };
+
+      const HINT = {
+        "bubu:disari": "Kapıyı açıp güneşi göstermek",
+        "bubu:kahvalti": "Önce mutfağa sürüklemek",
+        "bubu:gidik": "Yorganı savaş alanına çevirmek",
+        "dudu:uyu": "Gözler hâlâ kapalı",
+        "dudu:film": "Kumanda yastığın altında",
+        "dudu:cik": "Ayakkabı bu sefer bulunuyor",
+        "bubu:pankek": "Çilek ve bal, büyük plan",
+        "bubu:birlikte": "Ocağın başına iki kişi",
+        "bubu:surpriz": "Gözler kapalı, tabak gizli",
+        "dudu:tost": "Çay, ekmek, sakinlik",
+        "dudu:yardim": "Un uçsa da yardım var",
+        "dudu:tatli": "Reçel kavanozu açılıyor",
+        "bubu:sapka": "Aynada küçük bir gösteri",
+        "bubu:esofman": "Dışarı şart değil",
+        "bubu:uyum": "Dudu ne giyerse o",
+        "dudu:mont": "Hava serin, mont emin",
+        "dudu:evkiyafet": "Terlik hâlâ ayakta",
+        "dudu:renk": "Dolaptan denk bir üst",
+        "bubu:park": "Ağaç, bank, dondurma ihtimali",
+        "bubu:alisveris": "Vitrinler Bubu'yu çağırıyor",
+        "bubu:ev": "Kanepe bugün de kazanabilir",
+        "dudu:park": "Kısa ve yeşil bir plan",
+        "dudu:ev": "Battaniye henüz sıcak",
+        "dudu:tur": "Mahalle, acele yok",
+        "bubu:dondurma": "Tezgâhın önünde heyecan",
+        "bubu:foto": "Işık tam, poz hazır",
+        "bubu:bank": "Bir nefes, ayaklar dinlensin",
+        "dudu:dondurma": "Küçük bir külah yeter",
+        "dudu:cek": "Kadrajda olmak zor",
+        "dudu:golge": "Güneş fazla parlak",
+        "bubu:saka": "Üstüne bir şaka daha",
+        "bubu:ozur": "Sesini alçaltmak",
+        "bubu:saril": "Konuşmadan yaklaşmak",
+        "dudu:kirildim": "Suskunluk devam ediyor",
+        "dudu:komik": "Gülmek, affetmek değil",
+        "dudu:konus": "Oturup adıyla söylemek",
+        "bubu:makarna": "Büyük tencere, bol sos",
+        "bubu:disariye": "Sokak, masa, kalabalık",
+        "bubu:siparis": "Telefon menüsü açık",
+        "dudu:corba": "Küçük tencere, az laf",
+        "dudu:evyemegi": "Ocak yanacak",
+        "dudu:tabak": "İki çatal, bir tabak",
+        "bubu:film": "Işıkları kısmak",
+        "bubu:yuruyus": "Kapıyı son kez açmak",
+        "bubu:battaniye": "Kanepe kale olsun",
+        "dudu:film": "Aynı filmi seçmek",
+        "dudu:yuruyus": "Lamba altı, yavaş adım",
+        "dudu:cay": "Demlik çoktan ılık"
+      };
+
       function initialState() {
         return {
           phase: "lobby",
@@ -768,6 +1150,9 @@
           continues: { host: false, guest: false },
           outcomeText: "",
           endingId: null,
+          act: "",
+          shift: null,
+          log: [],
           notice: "",
           error: "",
           seq: 0
@@ -858,6 +1243,13 @@
             next.love = clamp(next.love + result.love);
             next.chaos = clamp(next.chaos + result.chaos);
             next.outcomeText = result.text;
+            next.act = actFor(result);
+            next.shift = { love: result.love, chaos: result.chaos };
+            next.log.push({
+              t: scene.title,
+              b: optionLabel(scene, "bubu", next.picks.bubu),
+              d: optionLabel(scene, "dudu", next.picks.dudu)
+            });
             next.phase = "outcome";
             next.continues = { host: false, guest: false };
           }
@@ -870,12 +1262,15 @@
             if (next.sceneIndex >= SCENES.length - 1) {
               next.phase = "ending";
               next.endingId = pickEnding(next.love, next.chaos);
+              next.act = next.endingId === "kaos" ? "storm" : next.endingId === "uyumlu" ? "hug" : "laugh";
             } else {
               next.sceneIndex += 1;
               next.phase = "scene";
               next.picks = { bubu: null, dudu: null };
               next.continues = { host: false, guest: false };
               next.outcomeText = "";
+              next.act = "";
+              next.shift = null;
             }
           }
           return next;
@@ -922,7 +1317,10 @@
         park: "#79C7EA",
         crisis: "#9AABB8",
         dusk: "#F2B56B",
-        night: "#24556C"
+        night: "#24556C",
+        room: "#F2C9A0",
+        street: "#7EC8EA",
+        supper: "#E28B62"
       };
 
       const els = {
@@ -955,14 +1353,21 @@
         roleStatus: document.getElementById("roleStatus"),
         readyBtn: document.getElementById("readyBtn"),
         sceneTitle: document.getElementById("sceneTitle"),
+        scenePlace: document.getElementById("scenePlace"),
         sceneCount: document.getElementById("sceneCount"),
         storyText: document.getElementById("storyText"),
+        shiftText: document.getElementById("shiftText"),
+        fx: document.getElementById("fx"),
+        bubbleBubu: document.getElementById("bubbleBubu"),
+        bubbleDudu: document.getElementById("bubbleDudu"),
+        cast: document.querySelector(".cast"),
         recap: document.getElementById("recap"),
         waitText: document.getElementById("waitText"),
         choices: document.getElementById("choices"),
         continueBtn: document.getElementById("continueBtn"),
         endTitle: document.getElementById("endTitle"),
         endText: document.getElementById("endText"),
+        dayLog: document.getElementById("dayLog"),
         restartBtn: document.getElementById("restartBtn"),
         downText: document.getElementById("downText"),
         downBtn: document.getElementById("downBtn"),
@@ -983,6 +1388,8 @@
       let localReady = false;
       let lastPhase = "";
       let hopTimer = 0;
+      let fxKind = "";
+      let shownScene = "";
 
       function peerCtor() {
         if (typeof Peer === "function") return Peer;
@@ -1023,6 +1430,9 @@
           continues: { host: !!s.continues.host, guest: !!s.continues.guest },
           outcomeText: s.outcomeText,
           endingId: s.endingId,
+          act: s.act || "",
+          shift: s.shift ? { love: s.shift.love, chaos: s.shift.chaos } : null,
+          log: (s.log || []).map(function (item) { return { t: item.t, b: item.b, d: item.d }; }),
           notice: s.notice
         };
       }
@@ -1161,6 +1571,9 @@
         state.continues = { host: !!msg.continues.host, guest: !!msg.continues.guest };
         state.outcomeText = msg.outcomeText || "";
         state.endingId = msg.endingId;
+        state.act = msg.act || "";
+        state.shift = msg.shift ? { love: msg.shift.love, chaos: msg.shift.chaos } : null;
+        state.log = Array.isArray(msg.log) ? msg.log.map(function (item) { return { t: item.t, b: item.b, d: item.d }; }) : [];
         state.notice = msg.notice || "";
         state.partner = true;
         state.isHost = false;
@@ -1348,6 +1761,55 @@
         el.hidden = !on;
       }
 
+      function poseName(id, phase) {
+        if (phase === "outcome") {
+          if (state.act === "hug") return "hug";
+          if (state.act === "storm") return "storm";
+          if (state.act === "dance") return "dance";
+          if (state.act === "laugh") return "laugh";
+        }
+        if (id && POSE[id]) return POSE[id];
+        if (phase === "lobby" || phase === "opening" || phase === "hosting" || phase === "joining") return "idle";
+        return "idle";
+      }
+
+      function bubbleText(role, id, phase, scene) {
+        const meta = META[scene.id] || {};
+        if (phase === "lobby" || phase === "opening" || phase === "hosting" || phase === "joining") {
+          return role === "bubu" ? "Birlikte oynayalım." : "Kodu bekliyorum.";
+        }
+        if (phase === "role") return role === "bubu" ? "Beni seç." : "Ya da beni.";
+        if ((phase === "scene" || phase === "outcome") && id && SAY[id]) return SAY[id];
+        if (phase === "scene" || phase === "outcome" || phase === "ending") {
+          return role === "bubu" ? (meta.bubuSay || "") : (meta.duduSay || "");
+        }
+        return "";
+      }
+
+      function fxFor(mood, act) {
+        if (act === "storm" || mood === "crisis") return "rain";
+        if (act === "hug" || act === "laugh") return "hearts";
+        if (act === "dance") return "leaves";
+        if (mood === "kitchen" || mood === "room" || mood === "supper") return "steam";
+        if (mood === "park" || mood === "street") return "leaves";
+        if (mood === "night" || mood === "dusk") return "stars";
+        return "motes";
+      }
+
+      function paintFx(kind) {
+        if (!els.fx || fxKind === kind) return;
+        fxKind = kind;
+        els.fx.dataset.kind = kind;
+        while (els.fx.firstChild) els.fx.removeChild(els.fx.firstChild);
+        for (let i = 0; i < 14; i += 1) {
+          const dot = document.createElement("i");
+          dot.style.left = (4 + i * 6.6) + "%";
+          dot.style.animationDelay = (-i * 0.32) + "s";
+          dot.style.animationDuration = (kind === "rain" ? 0.85 : 3.4) + (i % 4) * 0.35 + "s";
+          els.fx.appendChild(dot);
+        }
+      }
+
       function render() {
         const phase = state.phase;
         const myRole = roleOf(state, state.seat);
@@ -1357,6 +1819,24 @@
         if (phase === "ending" && ENDINGS[state.endingId]) mood = ENDINGS[state.endingId].mood;
         document.body.dataset.mood = mood;
         els.world.dataset.mood = mood;
+        if (shownScene !== scene.id + phase) {
+          shownScene = scene.id + phase;
+          els.world.classList.remove("enter");
+          void els.world.offsetWidth;
+          els.world.classList.add("enter");
+        }
+        const bubuPick = state.picks.bubu || (myRole === "bubu" ? localChoice : null);
+        const duduPick = state.picks.dudu || (myRole === "dudu" ? localChoice : null);
+        els.bearBubu.dataset.pose = phase === "role" && myRole === "bubu" ? "jump" : poseName(phase === "scene" || phase === "outcome" ? bubuPick : "", phase);
+        els.bearDudu.dataset.pose = phase === "role" && myRole === "dudu" ? "jump" : poseName(phase === "scene" || phase === "outcome" ? duduPick : "", phase);
+        if (phase === "lobby" || phase === "hosting" || phase === "joining" || phase === "opening") {
+          els.bearBubu.dataset.pose = "jump";
+          els.bearDudu.dataset.pose = "sleep";
+        }
+        if (els.cast) els.cast.dataset.act = phase === "outcome" ? (state.act || "") : "";
+        els.bubbleBubu.textContent = bubbleText("bubu", bubuPick, phase, scene);
+        els.bubbleDudu.textContent = bubbleText("dudu", duduPick, phase, scene);
+        paintFx(fxFor(mood, phase === "outcome" ? state.act : ""));
         if (els.theme) els.theme.setAttribute("content", THEME[mood] || THEME.morning);
         document.body.classList.toggle("playing", phase === "scene" || phase === "outcome" || phase === "ending");
         show(els.titleblock, phase === "lobby" || phase === "opening" || phase === "hosting" || phase === "joining");
@@ -1442,11 +1922,19 @@
         }
 
         if (phase === "scene" || phase === "outcome") {
+          const meta = META[scene.id] || {};
           els.sceneTitle.textContent = scene.title;
+          els.scenePlace.textContent = meta.clock ? meta.clock + "  " + meta.place : "";
           els.sceneCount.textContent = "Sahne " + (state.sceneIndex + 1) + " / " + SCENES.length;
           const chosenId = (myRole && state.picks[myRole]) || localChoice;
           if (phase === "outcome") {
             els.storyText.textContent = state.outcomeText;
+            if (state.shift) {
+              els.shiftText.hidden = false;
+              if (state.shift.chaos > state.shift.love) els.shiftText.textContent = "Kaos öne geçti.";
+              else if (state.shift.love > state.shift.chaos + 4) els.shiftText.textContent = "Sevgi öne geçti.";
+              else els.shiftText.textContent = "İkisi de kıpırdadı.";
+            } else els.shiftText.hidden = true;
             const bubuLabel = optionLabel(scene, "bubu", state.picks.bubu);
             const duduLabel = optionLabel(scene, "dudu", state.picks.dudu);
             els.recap.hidden = false;
@@ -1466,6 +1954,7 @@
             } else els.waitText.hidden = true;
           } else {
             els.storyText.textContent = scene.narration;
+            els.shiftText.hidden = true;
             els.recap.hidden = true;
             show(els.continueBtn, false);
             show(els.choices, true);
@@ -1477,7 +1966,16 @@
               btn.type = "button";
               btn.className = "choice" + (chosenId === opt.id ? " is-selected" : "");
               btn.dataset.id = opt.id;
-              btn.textContent = opt.label;
+              const name = document.createElement("span");
+              name.className = "choice-label";
+              name.textContent = opt.label;
+              btn.appendChild(name);
+              const hint = HINT[myRole + ":" + opt.id];
+              if (hint) {
+                const small = document.createElement("small");
+                small.textContent = hint;
+                btn.appendChild(small);
+              }
               btn.disabled = !!chosenId;
               els.choices.appendChild(btn);
             }
@@ -1497,6 +1995,13 @@
           const ending = ENDINGS[state.endingId] || ENDINGS.orta;
           els.endTitle.textContent = ending.title;
           els.endText.textContent = ending.text;
+          while (els.dayLog.firstChild) els.dayLog.removeChild(els.dayLog.firstChild);
+          const items = state.log || [];
+          for (let i = 0; i < items.length; i += 1) {
+            const li = document.createElement("li");
+            li.textContent = items[i].t + ": Bubu " + items[i].b + ", Dudu " + items[i].d;
+            els.dayLog.appendChild(li);
+          }
         }
 
         if (phase === "disconnected") {
