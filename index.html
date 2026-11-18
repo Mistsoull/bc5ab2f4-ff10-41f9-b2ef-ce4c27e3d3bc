@@ -275,6 +275,8 @@
     .bear[data-pose="hug"] svg { animation: lean 0.8s ease-in-out infinite; }
     .cast[data-act="hug"] .bear.bubu { animation: meet-right 0.55s ease forwards; }
     .cast[data-act="hug"] .bear.dudu { animation: meet-left 0.55s ease forwards; }
+    .cast[data-act="mad"] .bear.bubu { animation: sorry-back 0.55s ease forwards; }
+    .cast[data-act="mad"] .bear.dudu { animation: turn-away 0.55s ease forwards; }
 
     .eye {
       transform-box: fill-box;
@@ -612,6 +614,8 @@
 
     @keyframes meet-right { to { transform: translateX(26px); } }
     @keyframes meet-left { to { transform: translateX(-26px); } }
+    @keyframes sorry-back { to { transform: translateX(-14px) scale(0.94); } }
+    @keyframes turn-away { to { transform: translateX(22px) rotate(8deg); } }
 
     @keyframes blink {
       0%, 88%, 100% { transform: scaleY(1); }
@@ -649,7 +653,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       .clouds, .bear svg, .fx i, .bubble, .choice, .world.enter,
-      .cast[data-act="hug"] .bear, .eye { animation: none; }
+      .cast[data-act="hug"] .bear, .cast[data-act="mad"] .bear, .eye { animation: none; }
       .track div { transition: none; }
     }
 
@@ -1046,7 +1050,7 @@
         kaos: {
           title: "Güzel bir karışıklık",
           mood: "night",
-          text: "Planlar üst üste bindi, bir şaka fazla kaçtı, yine de kimse kapıyı çarpmadı. Bu evde karışıklık da bir tür sarılma. Yarın daha sakin olabilir."
+          text: "Kaos önde. Dudu Bubu'ya kızgın: kollar kavuşmuş, bakış başka yerde. Bubu özür dilenecek bir yer arıyor. Kapı çarpmadı ama bu gece sarılma yok."
         },
         orta: {
           title: "Tam ikinize göre",
@@ -1218,6 +1222,8 @@
         "bubble-wait": { tr: "Kodu bekliyorum.", de: "Ich warte auf den Code." },
         "bubble-me": { tr: "Beni seç.", de: "Nimm mich." },
         "bubble-or": { tr: "Ya da beni.", de: "Oder mich." },
+        "mad-dudu": { tr: "Sana kızgınım.", de: "Ich bin sauer auf dich." },
+        "mad-bubu": { tr: "Kızma...", de: "Sei nicht böse..." },
         "no-role-here": { tr: "Rolün bu sahnede yok.", de: "Du hast in dieser Szene keine Rolle." },
         language: { tr: "Dil", de: "Sprache" },
         "live-host": { tr: "Oda kodu", de: "Raumcode" },
@@ -1227,7 +1233,7 @@
       const DE = {
         endings: {
           uyumlu: { title: "Derselbe Takt", text: "Viel Nähe, das Haus ist ruhig. Bubu erzählt noch, Dudu hört zu, und diesmal lachen beide. Als wäre der Samstag genau dafür gemacht." },
-          kaos: { title: "Ein schönes Durcheinander", text: "Pläne lagen übereinander, ein Witz ging zu weit, und trotzdem hat niemand die Tür geknallt. In diesem Haus ist Chaos auch eine Art Umarmung. Morgen kann es ruhiger sein." },
+          kaos: { title: "Ein schönes Durcheinander", text: "Chaos liegt vorn. Dudu ist sauer auf Bubu: die Arme verschränkt, der Blick woanders. Bubu sucht eine Stelle für eine Entschuldigung. Die Tür bleibt zu, aber heute Nacht gibt es keine Umarmung." },
           orta: { title: "Genau wie ihr", text: "Nicht alles lief glatt, und nichts ist zerbrochen. Etwas Feilschen, etwas Tee, etwas Lachen. Der Tag endete in der Mitte eures Tempos." }
         },
         meta: {
@@ -2164,6 +2170,9 @@
 
       function bubbleText(role, id, phase, scene) {
         const meta = metaOf(scene.id);
+        if (phase === "ending" && state.endingId === "kaos") {
+          return role === "dudu" ? ui("mad-dudu") : ui("mad-bubu");
+        }
         if (phase === "lobby" || phase === "opening" || phase === "hosting" || phase === "joining") {
           return role === "bubu" ? ui("bubble-play") : ui("bubble-wait");
         }
@@ -2256,10 +2265,18 @@
           els.bearBubu.dataset.pose = "jump";
           els.bearDudu.dataset.pose = "sleep";
         }
-        if (els.cast) els.cast.dataset.act = phase === "outcome" ? (state.act || "") : "";
+        if (phase === "ending" && state.endingId === "kaos") {
+          els.bearBubu.dataset.pose = "shy";
+          els.bearDudu.dataset.pose = "storm";
+        }
+        if (els.cast) {
+          if (phase === "ending" && state.endingId === "kaos") els.cast.dataset.act = "mad";
+          else els.cast.dataset.act = phase === "outcome" ? (state.act || "") : "";
+        }
         els.bubbleBubu.textContent = bubbleText("bubu", bubuPick, phase, scene);
         els.bubbleDudu.textContent = bubbleText("dudu", duduPick, phase, scene);
-        paintFx(fxFor(mood, phase === "outcome" ? state.act : ""));
+        const stageAct = phase === "ending" && state.endingId === "kaos" ? "storm" : (phase === "outcome" || phase === "ending" ? state.act : "");
+        paintFx(fxFor(mood, stageAct));
         if (els.theme) els.theme.setAttribute("content", THEME[mood] || THEME.morning);
         document.body.classList.toggle("playing", phase === "scene" || phase === "outcome" || phase === "ending");
         show(els.titleblock, phase === "lobby" || phase === "opening" || phase === "hosting" || phase === "joining");
